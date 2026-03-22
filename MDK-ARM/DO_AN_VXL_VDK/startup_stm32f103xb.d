@@ -1,0 +1,1 @@
+do_an_vxl_vdk\startup_stm32f103xb.o: startup_stm32f103xb.s

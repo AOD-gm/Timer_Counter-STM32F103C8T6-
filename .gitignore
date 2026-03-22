@@ -1,0 +1,15 @@
+# Keil MDK-ARM generated files
+MDK-ARM/*.o
+MDK-ARM/*.d
+MDK-ARM/*.crf
+MDK-ARM/*.axf
+MDK-ARM/*.htm
+MDK-ARM/*.dep
+MDK-ARM/*.lnp
+MDK-ARM/*.map
+MDK-ARM/*.lst
+MDK-ARM/RTE/
+MDK-ARM/DebugConfig/
+MDK-ARM/Listings/
+MDK-ARM/Objects/
+.mxproject
