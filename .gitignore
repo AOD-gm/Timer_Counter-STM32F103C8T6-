@@ -1,0 +1,22 @@
+
+# Bỏ qua các file biên dịch và file tạm của KeilC / STM32CubeIDE
+*.o
+*.d
+*.crf
+*.hex
+*.bin
+*.axf
+*.map
+*.bak
+*.dep
+*.lst
+
+# Bỏ qua thư mục build rác
+Debug/
+Release/
+Objects/
+Listings/
+
+# Bỏ qua file tạm của CubeMX
+.mxproject
+
