@@ -10,7 +10,8 @@
 *.bak
 *.dep
 *.lst
-
+*.uvguix.*
+*.uvoptx
 # Bỏ qua thư mục build rác
 Debug/
 Release/

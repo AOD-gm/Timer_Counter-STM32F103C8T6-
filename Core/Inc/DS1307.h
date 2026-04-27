@@ -1,3 +1,6 @@
+#ifndef DS1307_H   // Thêm dòng này ? d?u file
+#define DS1307_H
+
 #include <stdint.h>
 #include <stdio.h>
 #include "main.h"
@@ -34,3 +37,5 @@ void DS1307_SetTime(DS1307 *time);
 void DS1307_GetTime(DS1307 *time);
 void DS1307_SetAlarm(DS1307 *time);
 void DS1307_GetAlarm(DS1307 *time);
+
+#endif

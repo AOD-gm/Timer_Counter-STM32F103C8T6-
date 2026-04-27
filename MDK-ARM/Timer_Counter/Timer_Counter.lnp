@@ -7,6 +7,8 @@
 "timer_counter\main.o"
 "timer_counter\stm32f1xx_it.o"
 "timer_counter\stm32f1xx_hal_msp.o"
+"timer_counter\mh-r38.o"
+"timer_counter\code_logic_ssd1306.o"
 "timer_counter\stm32f1xx_hal_gpio_ex.o"
 "timer_counter\stm32f1xx_hal_i2c.o"
 "timer_counter\stm32f1xx_hal.o"
@@ -19,6 +21,8 @@
 "timer_counter\stm32f1xx_hal_flash.o"
 "timer_counter\stm32f1xx_hal_flash_ex.o"
 "timer_counter\stm32f1xx_hal_exti.o"
+"timer_counter\stm32f1xx_hal_tim.o"
+"timer_counter\stm32f1xx_hal_tim_ex.o"
 "timer_counter\system_stm32f1xx.o"
 --strict --scatter "Timer_Counter\Timer_Counter.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
