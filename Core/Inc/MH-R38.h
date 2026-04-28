@@ -21,7 +21,9 @@
 #define RM_Test 0x00FF22DD
 #define RM_Return 0x00FFC23D
 #define RM_C 0 0x00FFB04F
-;
+
+extern uint8_t  New_Ir_Flag; 
+extern uint32_t RM_Code;
 
 void IR_Init(TIM_HandleTypeDef *htim);
 void IR_EXTI_Handler(void);
