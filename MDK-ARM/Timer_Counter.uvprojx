@@ -435,9 +435,9 @@
               <FilePath>..\Core\Src\MH-R38.c</FilePath>
             </File>
             <File>
-              <FileName>Code_Logic_SSD1306.c</FileName>
+              <FileName>Menu_UI.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Core\Src\Code_Logic_SSD1306.c</FilePath>
+              <FilePath>..\Core\Src\Menu_UI.c</FilePath>
             </File>
           </Files>
         </Group>

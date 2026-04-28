@@ -21,4 +21,4 @@
 #define C3_Pin GPIO_PIN_8
 #define C4_Pin GPIO_PIN_9
 
-char Keypad_Init(void);
+char Keypad_Read(void);

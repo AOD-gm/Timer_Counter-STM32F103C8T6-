@@ -13,7 +13,7 @@ uint16_t Row_Pins[4]       = {R1_Pin, R2_Pin, R3_Pin, R4_Pin};
 GPIO_TypeDef* Col_Ports[4] = {C1_Port, C2_Port, C3_Port, C4_Port};
 uint16_t Col_Pins[4]       = {C1_Pin, C2_Pin, C3_Pin, C4_Pin};
 
-char Keypad_Init(void ){
+char Keypad_Read(void ){
     for(int i = 0; i < 4; i++) {
         HAL_GPIO_WritePin(Row_Ports[i], Row_Pins[i], GPIO_PIN_SET);
     }

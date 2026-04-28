@@ -12,6 +12,11 @@
 *.lst
 *.uvguix.*
 *.uvoptx
+*.htm
+*.txt
+*.lnp
+*.I
+*.tmp
 # Bỏ qua thư mục build rác
 Debug/
 Release/

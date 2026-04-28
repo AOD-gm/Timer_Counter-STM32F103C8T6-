@@ -1,4 +1,4 @@
-#ifndef DS1307_H   // Thêm dòng này ? d?u file
+#ifndef DS1307_H  
 #define DS1307_H
 
 #include <stdint.h>

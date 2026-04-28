@@ -26,8 +26,7 @@
 #include "SSD1306.h"
 #include "FontSSD1306.h"
 #include "MH-R38.h"
-
-#include "Code_Logic_SSD1306.h"
+#include "Menu_UI.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,16 +53,7 @@ I2C_HandleTypeDef hi2c2;
 TIM_HandleTypeDef htim2;
 
 /* USER CODE BEGIN PV */
-extern uint8_t  New_Ir_Flag;
-extern uint32_t RM_Code;
-int mode = 10;
-int menu = 10;
-int locate = 0;
-int temp_hour, temp_minute, temp_second;
-int alarm_set = 0;
-DS1307 time;
-char time_str[20];
-char date_str[20];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -90,10 +80,6 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-	char time_str[20];
-	char date_str[20];
-		char buffer[20];
-
 
   /* USER CODE END 1 */
 
@@ -124,13 +110,7 @@ int main(void)
 	OLED_Clear();
 	IR_Init(&htim2);
 	
-uint8_t stop_1hz = 0x04;
-  HAL_I2C_Mem_Write(&hi2c1, (0x68 << 1), 0x0E, I2C_MEMADD_SIZE_8BIT, &stop_1hz, 1, 100);
-  uint8_t clear_flag;
-  HAL_I2C_Mem_Read(&hi2c1, (0x68 << 1), 0x0F, I2C_MEMADD_SIZE_8BIT, &clear_flag, 1, 100);
-  clear_flag &= ~0x01; // Xóa bit A1F
-  HAL_I2C_Mem_Write(&hi2c1, (0x68 << 1), 0x0F, I2C_MEMADD_SIZE_8BIT, &clear_flag, 1, 100);
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+
 //  DS1307_SetTime(&time);
 
   /* USER CODE END 2 */
@@ -143,25 +123,14 @@ uint8_t stop_1hz = 0x04;
 
     /* USER CODE BEGIN 3 */
 		
-if (New_Ir_Flag == 1) { 
-          // KHOAN TẮT CỜ VỘI! Để màn hình in xong xuôi hết rồi mới tắt cờ (Mở khóa)
-          OLED_Clear();
-          
-          char hex_str[20];
-          sprintf(hex_str, "Code: 0x%08X", RM_Code); // Ép ra mã HEX
-          
-          OLED_Print("- DA GIAI MA -", 0, 1);
-          OLED_Print(hex_str, 0, 4);
-          
-          HAL_Delay(2000); // Dừng nửa giây cho ông dễ nhìn
-          
-          OLED_Clear();
-          New_Ir_Flag = 0; // IN XONG HẾT MỚI MỞ KHÓA CHO NHẬN NÚT TIẾP THEO
-      }
-			Logic_Code_SSD1306();
-  }
-
+		char key_pad=Keypad_Read();
+		uint32_t key_ir = Read_RM();
+		
+		UI_Proccess_Keypad(key_pad);
+		UI_Proccess_IR(key_ir);
+		UI_Render();
 		HAL_Delay(50);
+	}
   /* USER CODE END 3 */
 }
 
@@ -391,7 +360,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
     if(GPIO_Pin == GPIO_PIN_0) 
     {
-				Led_Int_Handle();
+				
     }
 		if(GPIO_Pin == GPIO_PIN_1)
     {

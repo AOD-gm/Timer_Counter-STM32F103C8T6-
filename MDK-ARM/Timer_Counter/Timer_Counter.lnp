@@ -8,7 +8,7 @@
 "timer_counter\stm32f1xx_it.o"
 "timer_counter\stm32f1xx_hal_msp.o"
 "timer_counter\mh-r38.o"
-"timer_counter\code_logic_ssd1306.o"
+"timer_counter\menu_ui.o"
 "timer_counter\stm32f1xx_hal_gpio_ex.o"
 "timer_counter\stm32f1xx_hal_i2c.o"
 "timer_counter\stm32f1xx_hal.o"

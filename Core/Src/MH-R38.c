@@ -34,3 +34,10 @@ void IR_EXTI_Handler(void){
     
 }
 
+uint32_t Read_RM(void){
+    if (New_Ir_Flag){
+        New_Ir_Flag = 0;
+        return RM_Code;
+    }
+    return 0;
+}
