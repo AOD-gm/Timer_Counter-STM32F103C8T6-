@@ -1,1 +1,74 @@
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
 
+ESP8266WebServer server(80);
+
+const char* ssid = "YOUR_WIFI";
+const char* password = "YOUR_PASS";
+
+char lastKey = 0;
+
+void startSmartConfig() {
+  WiFi.mode(WIFI_STA);
+  WiFi.beginSmartConfig();
+
+  while (!WiFi.smartConfigDone()) {
+    delay(200);
+  }
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(200);
+  }
+}
+
+void sendToSTM32(String data) {
+  Serial.println(data);
+}
+
+void handleKey() {
+  if (!server.hasArg("key")) {
+    server.send(400, "text/plain", "NO KEY");
+    return;
+  }
+
+  String key = server.arg("key");
+
+  sendToSTM32("KEY:" + key);
+
+  server.send(200, "text/plain", "OK");
+}
+
+void connectWiFi() {
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+
+  int t = 0;
+  while (WiFi.status() != WL_CONNECTED && t < 20) {
+    delay(500);
+    t++;
+  }
+
+  if (WiFi.status() != WL_CONNECTED) {
+    startSmartConfig();
+  }
+}
+
+
+void setup() {
+  Serial.begin(9600);
+
+  connectWiFi();
+
+  server.on("/send", handleKey);
+  server.begin();
+
+  Serial.println("ESP READY");
+  Serial.println(WiFi.localIP());
+}
+
+void loop() {
+  server.handleClient();          
+  if (WiFi.status() != WL_CONNECTED) {
+    connectWiFi();      
+  }
+}
