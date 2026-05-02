@@ -138,16 +138,16 @@ void OLED_Clear() {
 
 void OLED_DrawPixel(uint8_t x, uint8_t y)
 {
-    if(x>128  || y<64)
+    if(x>129  || y>65)
         return;
     uint8_t page=y/8; //tính page
-    uint8_t bit_posion=y&8;//vị trí hàng thứ y trong page
+    uint8_t bit_posion=y % 8;//vị trí hàng thứ y trong page
     uint8_t data=1<<bit_posion; //tạo dữ liệu để bật bit tương ứng
     OLED_Cusor(x, page); //đặt con trỏ đến vị trí cần vẽ
     Oled_SendData(data); //gửi dữ liệu để bật pixel
 }
 
-void OLED_DrawCircle(uint8_t x0, uint8_t y0, uint8_t r)
+void OLED_DrawCircle(uint16_t x0, uint16_t y0, uint16_t r)
 {
     uint8_t x=r;
     uint8_t y=0;
@@ -176,14 +176,24 @@ void OLED_DrawCircle(uint8_t x0, uint8_t y0, uint8_t r)
     }
 }
 
-void OLED_DrawSlectionBox(uint8_t x0, uint8_t y0, uint8_t width){
-    for(uint8_t i=0; i<width; i++){
-        OLED_DrawPixel(x0+i, y0); // Vẽ đường ngang trên
-        OLED_DrawPixel(x0+i, y0+7); // Vẽ đường ngang dưới
+void OLED_DrawSelectionBox(uint8_t x0, uint8_t y0, uint8_t width){
+    uint8_t y_pixel = y0 * 8; // chuyển đổi page sang pixel
+    uint8_t y_pixdel_end = y_pixel + 7; // tính pixel cuối cùng của page
+    for(uint8_t i=0; i<=width; i++){
+        OLED_DrawPixel(x0+i-1, y_pixel-2); // vẽ đường trên
+        OLED_DrawPixel(x0+i-1, y_pixdel_end+2); // vẽ đường dưới
     }
-    for(uint8_t j=0; j<8; j++){
-        OLED_DrawPixel(x0, y0+j); // Vẽ đường dọc trái
-        OLED_DrawPixel(x0+width-1, y0+j); // Vẽ đường dọc phải
-    }
+    OLED_Cusor(x0-2, y0-1); // đặt con trỏ sau khi vẽ xong
+    Oled_SendData(0xC0);
+    OLED_Cusor(x0-2, y0); 
+    Oled_SendData(0xFF); // thêm 1 cột trống sau khi vẽ xong
+    OLED_Cusor(x0-2, y0+1);
+    Oled_SendData(0x03); // thêm 1 cột trống sau khi vẽ xong;
+    OLED_Cusor(x0+width, y0-1); // đặt con trỏ sau khi vẽ xong
+    Oled_SendData(0xC0);
+    OLED_Cusor(x0+width, y0);
+    Oled_SendData(0xFF); // thêm 1 cột trống sau
+    OLED_Cusor(x0+width, y0+1);
+    Oled_SendData(0x03); // thêm 1 cột trống sau khi vẽ xong;
 }
 
