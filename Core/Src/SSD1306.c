@@ -1,20 +1,20 @@
 #include <SSD1306.h>
 #include <FontSSD1306.h>
 void Oled_SendCmd(uint8_t cmd){
-    HAL_I2C_Mem_Write(&hi2c2, Oled_Adr, Oled_Control, I2C_MEMADD_SIZE_8BIT, &cmd, 1, 100  );
+    HAL_I2C_Mem_Write(&hi2c1, Oled_Adr, Oled_Control, I2C_MEMADD_SIZE_8BIT, &cmd, 1, 100  );
 }
 
 void Oled_SendData(uint8_t data){
-    HAL_I2C_Mem_Write(&hi2c2, Oled_Adr, Oled_Data, I2C_MEMADD_SIZE_8BIT, &data, 1, 100  );
+    HAL_I2C_Mem_Write(&hi2c1, Oled_Adr, Oled_Data, I2C_MEMADD_SIZE_8BIT, &data, 1, 100  );
 }
 void OLED_Init(){
     // fundelmental init
 	HAL_Delay(100);
     Oled_SendCmd(0xAE); // khoi tao man hinh off
 		
-		Oled_SendCmd(0xA0); // Trả trục X về bình thường
-		Oled_SendCmd(0xC0); // Trả trục Y về bình thường4  
-		Oled_SendCmd(0xA8); // Set Multiplex Ratio
+    Oled_SendCmd(0xA0); // Trả trục X về bình thường
+    Oled_SendCmd(0xC0); // Trả trục Y về bình thường4  
+    Oled_SendCmd(0xA8); // Set Multiplex Ratio
     Oled_SendCmd(0x3F);
     Oled_SendCmd(0xD3); // Set Display Offset
     Oled_SendCmd(0x00);
@@ -197,3 +197,49 @@ void OLED_DrawSelectionBox(uint8_t x0, uint8_t y0, uint8_t width){
     Oled_SendData(0x03); // thêm 1 cột trống sau khi vẽ xong;
 }
 
+void OLED_DrawSelectionBracket(uint8_t x0, uint8_t y0, uint8_t width) {
+    // Vẽ ngoặc mở "[" bên trái
+    OLED_Cusor(x0 - 6, y0); 
+    Oled_SendData(0xFF); // Vạch dọc dài
+    OLED_Cusor(x0 - 5, y0); 
+    Oled_SendData(0x81); // 2 chấm trên dưới
+    
+    // Vẽ ngoặc đóng "]" bên phải
+    OLED_Cusor(x0 + width + 4, y0); 
+    Oled_SendData(0x81); // 2 chấm trên dưới
+    OLED_Cusor(x0 + width + 5, y0); 
+    Oled_SendData(0xFF); // Vạch dọc dài
+}
+
+void OLED_DrawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) {
+    int dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+    int dy = abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+    int err = (dx > dy ? dx : -dy) / 2, e2;
+    for (;;) {
+        OLED_DrawPixel(x0, y0);
+        if (x0 == x1 && y0 == y1) break;
+        e2 = err;
+        if (e2 > -dx) { err -= dy; x0 += sx; }
+        if (e2 < dy) { err += dx; y0 += sy; }
+    }
+}
+
+void OLED_DrawHalfCircle(uint16_t x0, uint16_t y0, uint16_t r) {
+    int x = r;
+    int y = 0;
+    int err = 0;
+    while (x >= y) {
+        OLED_DrawPixel(x0 - x, y0 - y);
+        OLED_DrawPixel(x0 - y, y0 - x);
+        OLED_DrawPixel(x0 + y, y0 - x);
+        OLED_DrawPixel(x0 + x, y0 - y);
+        if (err <= 0) {
+            y++;
+            err += 2 * y + 1;
+        }
+        if (err > 0) {
+            x--;
+            err -= 2 * x + 1;
+        }
+    }
+}

@@ -18,6 +18,6 @@ void HLK_LD2410_Disable(void);
 void LD2410_Save_Config(void);
 void LD2410_Restart(void);
 void LD2410_Set_Threshold(uint8_t gate, uint8_t move_sens, uint8_t static_sens);
-extern LD2410_Data_t Radar;
 
+extern LD2410_Data_t Radar;
 #endif /* __HLK_LD2410_H */

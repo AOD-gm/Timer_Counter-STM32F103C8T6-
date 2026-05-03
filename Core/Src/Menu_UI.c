@@ -2,8 +2,10 @@
 	#include "SSD1306.h"
 	#include "MH-R38.h"
 	#include "DS1307.h"
-	#include <stdio.h> // Nhớ include cái này để dùng sprintf
+	#include "HLK_LD2410.h"
+	#include <stdio.h> 
 
+	extern LD2410_Data_t Radar;
 	int mode = 0;
 	int menu = 0;
 	int locate = 0;
@@ -15,7 +17,7 @@
 	DS1307 time;
 	char time_str[20];
 	char date_str[20];
-
+	uint8_t is_bg_drawn = 0;
 	// 1. HÀM XỬ LÝ NHẬP SỐ
 	void Handle_SpcKey(char key, int *temp_val, int max_val) {
 			if (key >= '0' && key <= '9') {
@@ -65,10 +67,6 @@
 								if(setting >= 1 && setting <= 3){
 									// LƯU TIMER
 									DS1307 set_timer;
-									set_timer.day = temp_day;
-									set_timer.date = temp_date;
-									set_timer.month = temp_month;
-									set_timer.year = temp_year;
 									set_timer.hours = temp_hour;
 									set_timer.minutes = temp_minute;
 									set_timer.seconds = temp_second;
@@ -77,11 +75,20 @@
 									OLED_Print("Timer Updated!", 15, 3);
 								}
 								else if(setting>=5 && setting <=8){
-									setting =1;
-									locate=0;
+									DS1307 set_timer;
+									set_timer.day = temp_day;
+									set_timer.date = temp_date;
+									set_timer.month = temp_month;
+									set_timer.year = temp_year;
+									DS1307_SetTime(&set_timer); 
+									
 									OLED_Clear();
+									OLED_Print("Ngay Updated!", 15, 3);
 								}
-							} 
+							HAL_Delay(1000);
+							menu = 2; setting = 4; locate = 0; mode = 0; // Trở về setting
+							OLED_Clear();
+							}
 							else if (choose == 2) {
 									// LƯU ALARM
 									DS1307 set_alarm;
@@ -89,13 +96,15 @@
 									set_alarm.minutes = temp_minute;
 									set_alarm.seconds = temp_second;
 									DS1307_SetAlarm(&set_alarm); 
-									alarm_set = 1;
+
 									OLED_Clear();
 									OLED_Print("Alarm Saved!", 20, 3);
-							}
-							HAL_Delay(1000);
-							menu = 0; setting = 0; locate = 0; mode = 0; // Trở về màn hình chờ
+									alarm_set = 1;;
+															HAL_Delay(1000);
+							menu = 2; setting = 0; locate = 0; mode = 0; // Trở về setting
 							OLED_Clear();
+							}
+
 					}
 			} 
 			else if (key == '#') {
@@ -107,7 +116,7 @@
 					} 
 					else if (menu == 2) { 
 							// CHỈ THOÁT RA KHI ĐANG Ở MÀN HÌNH CHỌN (setting 0 hoặc 4)
-							if (setting == 0 || setting == 4) { 
+							if (setting == 0 || setting == 4 ) { 
 									menu = 1; 
 									setting = 0; 
 									OLED_Clear(); 
@@ -122,7 +131,6 @@
 			}
 	}
 
-	// 3. HÀM ĐIỀU HƯỚNG PHÍM BẤM TỔNG TÀI
 	void UI_Proccess_Keypad(char key) {
 			if (key == 0) return;
 
@@ -145,28 +153,27 @@
 			if (menu == 2) {
 					if (setting == 0) { // Đang ở Menu chọn loại Setting
 							if (key == '4') { choose = 1; setting = 4; OLED_Clear(); }
-							else if (key == '6') { choose = 2; setting = 4; OLED_Clear(); }
+							else if (key == '6') { choose = 2; setting = 1; OLED_Clear(); }
 					} 
 					else if (setting == 4) { // Đang ở bảng Hướng dẫn, chờ chọn B C D
-							
-								if (key == 'A') { setting = 5; locate = 0; OLED_Clear(); } 
-							else if (key == 'B') { setting = 6; locate = 0; OLED_Clear(); } 
-							else if (key == 'C') { setting = 7; locate = 0; OLED_Clear(); } 
-							else if (key == 'D') { setting = 8; locate = 0; OLED_Clear(); }
+						
+							 if(key=='1') { setting = 5; locate = 0; OLED_Clear(); }
+							 else if(key=='2'){setting = 1; locate =0; OLED_Clear();}
+							 else if(key=='#'){setting =0, locate=0; OLED_Clear();}
 					} 
 					else if (setting >= 5 && setting <= 8) { 
 							// ĐANG NHẬP NGÀY THÁNG NĂM
-								if (key == 'A') { setting = 5; locate = 0; OLED_Clear(); } 
-							else if (key == 'B') { setting = 6; locate = 0; OLED_Clear(); } 
-							else if (key == 'C') { setting = 7; locate = 0; OLED_Clear(); } 
-							else if (key == 'D') { setting = 8; locate = 0; OLED_Clear(); }
+						if (key == 'A') { setting = 5; locate = 0; OLED_Clear(); } 
+						else if (key == 'B') { setting = 6; locate = 0; OLED_Clear(); } 
+						else if (key == 'C') { setting = 7; locate = 0; OLED_Clear(); } 
+						else if (key == 'D') { setting = 8; locate = 0; OLED_Clear(); }
 							
-							else if ((key >= '0' && key <= '9') || key == '#') {
-                if (setting == 6)      Handle_SpcKey(key, &temp_date, 31);
-                else if (setting == 7) Handle_SpcKey(key, &temp_month, 12);
-                else if (setting == 8) Handle_SpcKey(key, &temp_year, 99);
-                else if (setting == 5) Handle_SpcKey(key, &temp_day, 7);
-            }
+						else if ((key >= '0' && key <= '9') || key == '#') {
+							if (setting == 5) Handle_SpcKey(key, &temp_day, 7);
+							else if (setting == 6) Handle_SpcKey(key, &temp_date, 31);
+							else if (setting == 7) Handle_SpcKey(key, &temp_month, 12);
+							else if (setting == 8) Handle_SpcKey(key, &temp_year, 99);
+           				}
 					}
 					else if (setting >= 1 && setting <= 3) { // Đang nhập số
 							if (key == 'B') { setting = 1; locate = 0; OLED_Clear(); }
@@ -176,9 +183,8 @@
 								if (setting == 1) Handle_SpcKey(key, &temp_hour, 23);
 								else if (setting == 2) Handle_SpcKey(key, &temp_minute, 59);
 								else if (setting == 3) Handle_SpcKey(key, &temp_second, 59);
-					}
-							}
-					
+						}
+					}	
 					Key_Save_Return(key);
 					return;
 			}
@@ -212,7 +218,7 @@
 					case RM_09: UI_Proccess_Keypad('9'); break;  
 
 					case RM_Return: UI_Proccess_Keypad('#'); break;
-					case RM_Play: UI_Proccess_Keypad('*'); break;
+					case RM_Play: 	UI_Proccess_Keypad('*'); break;
 					case RM_Test:   UI_Proccess_Keypad('A'); break; 
 					case RM_Menu:   UI_Proccess_Keypad('B'); break;
 					case RM_C:      UI_Proccess_Keypad('C'); break; 
@@ -226,10 +232,11 @@
 					case 0: // MÀN HÌNH CHỜ
 							DS1307_GetTime(&time);
 							OLED_Print("WAIT MENU", 36, 0);
+							OLED_DrawSelectionBracket(30, 0, 70);
 							sprintf(time_str, "%02d:%02d", time.hours, time.minutes);
 							OLED_Print(time_str, 45, 1);
 							sprintf(date_str, "T%d %02d/%02d/20%02d", time.day, time.date, time.month, time.year);
-							OLED_Print(date_str, 20, 2);
+							OLED_Print(date_str, 25, 2);
 							
 							if (alarm_set == 1) {
 									DS1307 alarm_info;
@@ -275,31 +282,38 @@
 					case 2: // MÀN HÌNH SETTING
 							if (setting == 0) {
 									OLED_Print("--- THIET LAP ---", 15, 0); 
-									OLED_Print("4: Chinh Timer", 10, 2);
+									OLED_Print("4: Chinh Ngay/Timer", 10, 2);
 									OLED_Print("6: Chinh Alarm", 10, 4);
 									OLED_Print("#: Quay lai", 0, 7);
 							}
 							else if (setting == 4) {
 									OLED_Print("--- CHON MUC ---", 15, 0); 
+                                OLED_DrawSelectionBracket(15, 2, 120);
+                                OLED_Print("1: Chinh Ngay Thang", 5, 2);
+                                OLED_Print("2: Chinh Gio Phut ", 5, 4);
+                                
+                                OLED_Print("#: Quay lai", 0, 7);
+							}
+							else if(setting == 9){
+									OLED_Print("--- CHON MUC ---", 15, 0); 
 									OLED_Print("B:Gio C:Phut D:Giay", 0, 3);
-									OLED_Print("#: Quay lai", 0, 7);
 							}
 							else if (setting >= 5 && setting <= 8) { 
 									// GIAI ĐOẠN 1: VẼ MÀN HÌNH CÀI NGÀY
-									OLED_Print("BUOC 1: NGAY THANG", 10, 0); 
+									OLED_Print("NGAY THANG", 10, 0); 
 
 									char buf_d[20], buf_m[20], buf_y[20],buf_day[20];
-									sprintf(buf_day, "%s T : %02d", (setting == 8 ? "*" : " "), temp_day);
-									sprintf(buf_d, "%s NGAY : %02d", (setting == 5 ? "*" : " "), temp_date);     
-									sprintf(buf_m, "%s THANG: %02d", (setting == 6 ? "*" : " "), temp_month);
-									sprintf(buf_y, "%s NAM  : 20%02d", (setting == 7 ? "*" : " "), temp_year);
+									sprintf(buf_day, "%s THU : %02d", (setting == 5 ? "*" : " "), temp_day);
+									sprintf(buf_d, "%s NGAY : %02d", (setting == 6 ? "*" : " "), temp_date);     
+									sprintf(buf_m, "%s THANG: %02d", (setting == 7 ? "*" : " "), temp_month);
+									sprintf(buf_y, "%s NAM  : 20%02d", (setting == 8 ? "*" : " "), temp_year);
 									
 									OLED_Print(buf_day, 15, 2);
 									OLED_Print(buf_d, 15, 3); 
 									OLED_Print(buf_m, 15, 4); 
 									OLED_Print(buf_y, 15, 5); 
 									
-									OLED_Print("*:Next      #:Xoa", 0, 7); // Phím * bây giờ là Next
+									OLED_Print("*:Next      #:Xoa", 0, 7);
 							}
 							else if (setting >= 1 && setting <= 3) {
 									if (setting == 1) OLED_Print("Dang chinh Gio!", 15, 6);
@@ -335,9 +349,38 @@
 							break;
 							
 					case 4: // MÀN HÌNH RADAR
-							OLED_Print("--- RADAR SCAN ---", 10, 0);
-							OLED_Print("Distance: Wait...", 10, 3);
-							OLED_Print("#: Thoat", 0, 7);
-							break;
-			}
+														if (is_bg_drawn == 0) {
+																OLED_Clear(); 
+																OLED_Print("RADAR", 0, 0);
+																OLED_Print("#:Out", 95, 0);
+																OLED_Print("Status:", 0, 2);
+																OLED_Print("Moving:", 0, 4);
+																OLED_Print("Static:", 0, 6);
+																is_bg_drawn = 1;
+														}
+
+														char txt_buffer[20];
+
+														if (Radar.state == 0)      OLED_Print("CLEAR   ", 55, 2); 
+														else if (Radar.state == 1) OLED_Print("MOVING  ", 55, 2);
+														else if (Radar.state == 2) OLED_Print("STATIC  ", 55, 2);
+														else if (Radar.state == 3) OLED_Print("MOV+STA ", 55, 2);
+
+														if (Radar.state == 1 || Radar.state == 3) {
+																sprintf(txt_buffer, "%-4d cm", Radar.moving_dist);
+																OLED_Print(txt_buffer, 55, 4);
+														} else {
+																OLED_Print("---     ", 55, 4); 
+														}
+
+														if (Radar.state == 2 || Radar.state == 3) {
+																sprintf(txt_buffer, "%-4d cm", Radar.static_dist);
+																OLED_Print(txt_buffer, 55, 6);
+														} else {
+																OLED_Print("---     ", 55, 6);
+														}
+														
+														HAL_Delay(50); 
+														break;
+						}
 	}

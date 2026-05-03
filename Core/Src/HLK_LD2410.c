@@ -1,9 +1,9 @@
 #include "HLK_LD2410.h"
 
 static uint8_t rx_data;          
-static uint8_t rx_buffer[24];    
+static uint8_t rx_buffer[32];    
 static uint8_t rx_index = 0;     
-static UART_HandleTypeDef *ld2410_huart; \
+UART_HandleTypeDef *ld2410_huart; 
 
 LD2410_Data_t Radar;
 void HLK_LD2410_Init(UART_HandleTypeDef *huart) {
@@ -29,13 +29,21 @@ void LD2410_UART_Callback(UART_HandleTypeDef *huart){
                 rx_index = 3;
             }
         }
-        if(rx_index >= 24){
-            rx_index = 0;
-            Radar.state         = rx_buffer[8];
-            Radar.moving_dist   = rx_buffer[9] | (rx_buffer[10] << 8);
-            Radar.moving_energy = rx_buffer[11];
-            Radar.static_dist   = rx_buffer[12] | (rx_buffer[13] << 8);
-            Radar.static_energy = rx_buffer[14];
+        if(rx_index >= 8){
+            if(rx_buffer[rx_index-4] == 0xF8 && rx_buffer[rx_index-3] == 0xF7 && 
+               rx_buffer[rx_index-2] == 0xF6 && rx_buffer[rx_index-1] == 0xF5) {
+                
+                // Đã bắt được nguyên 1 khung Data xịn!
+                Radar.state         = rx_buffer[8];
+                Radar.moving_dist   = rx_buffer[9] | (rx_buffer[10] << 8);
+                Radar.moving_energy = rx_buffer[11];
+                Radar.static_dist   = rx_buffer[12] | (rx_buffer[13] << 8);
+                Radar.static_energy = rx_buffer[14];
+                
+                rx_index = 0; // Đón frame mới
+            }
+        }
+        if(rx_index >= 30){
             rx_index = 0;
         }
         HAL_UART_Receive_IT(ld2410_huart, &rx_data, 1);
@@ -49,7 +57,7 @@ void HLK_LD2410_Enable(void){
 
 }
 void HLK_LD2410_Disable(void){
-    uint8_t cmd[] = {0xFD, 0xFC, 0xFB, 0xFA, 0x04, 0x00, 0xFF, 0x00, 0x01, 0x00, 0x04, 0x03, 0x02, 0x01};
+    uint8_t cmd[] = {0xFD, 0xFC, 0xFB, 0xFA, 0x04, 0x00, 0xFE, 0x00, 0x01, 0x00, 0x04, 0x03, 0x02, 0x01};
     HAL_UART_Transmit(ld2410_huart, cmd, 14, 1000);
     HAL_Delay(100);
 }
@@ -75,7 +83,7 @@ void LD2410_Set_Threshold(uint8_t gate, uint8_t move_sens, uint8_t static_sens) 
         0x04, 0x03, 0x02, 0x01  // End
     };
 
-    HAL_UART_Transmit(ld2410_huart, cmd, 28, 1000);
+    HAL_UART_Transmit(ld2410_huart, cmd, 24, 1000);
     HAL_Delay(50);
     
     HLK_LD2410_Disable();
