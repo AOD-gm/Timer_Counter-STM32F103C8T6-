@@ -3,6 +3,7 @@
 #include "main.h"
 #include <stdint.h>
 
+void UI_System_Process(void);
 void UI_Proccess_Keypad(char key);
 void UI_Proccess_IR(uint32_t IR_Code);
 void UI_Render(void);

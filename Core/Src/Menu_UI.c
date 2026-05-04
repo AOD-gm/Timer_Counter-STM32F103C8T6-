@@ -384,3 +384,42 @@
 														break;
 						}
 	}
+
+void UI_System_Process(void) {
+    static uint32_t timer_radar = 0;
+    static uint8_t light_active = 0; 
+
+    if (alarm_set == 1) {
+        // --- CHẾ ĐỘ 1: ĐANG CÀI BÁO THỨC (ƯU TIÊN) 
+        DS1307 alarm_info;
+        DS1307_GetAlarm(&alarm_info);
+        
+        if (alarm_info.hours == time.hours && 
+            alarm_info.minutes == time.minutes && 
+            alarm_info.seconds == time.seconds) 
+        {
+            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_0);
+            HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+        }
+    } 
+    else {
+        // --- CHẾ ĐỘ 2: KHÔNG CÀI BÁO THỨC (RADAR LÀM ĐÈN THÔNG MINH) ---
+        
+        if (Radar.state != 0) {
+ 
+            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);   
+            HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);  
+            light_active = 1;
+            timer_radar = HAL_GetTick(); 
+        } 
+        else {
+            if (light_active == 1) {
+                if (HAL_GetTick() - timer_radar >= 5000) {
+                    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET); 
+                    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+                    light_active = 0;
+                }
+            }
+        }
+    }
+}
