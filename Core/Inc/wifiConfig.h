@@ -6,7 +6,7 @@
 #include <EEPROM.h>
 #include <ArduinoJson.h>
 #include <Ticker.h>
-
+#include <DS1306.h>
 // biến global (extern)
 extern String ssid;
 extern String password;

@@ -197,8 +197,8 @@ void handleSetTime() {
     
     Serial.print("T:");
     Serial.print(timeData);
-    Serial.print("\r");
-    
+    Serial.print("\n"); 
+
     webServer.send(200, "text/plain", "Time Updated");
   }
 }
@@ -209,8 +209,7 @@ void handleSetAlarm() {
 
     Serial.print("A:");
     Serial.print(alarmData);
-    Serial.print("\r");
-    
+    Serial.print("\n");
     webServer.send(200, "text/plain", "Alarm Updated");
   }
 }
@@ -221,8 +220,22 @@ void handleDevice() {
     
     Serial.print("D:");
     Serial.print(state);
-    Serial.print("\r"); 
+    Serial.print("\n");
 
     webServer.send(200, "text/plain", "OK");
   }
+}
+
+void ESP01_UART_Callback() {
+  if(huart->Instance == USART1) {
+        if(rx_byte != '\n') { 
+            u8_RxBuff[_RxIndex] = rx_byte; 
+            _RxIndex++;
+            if(_RxIndex >= 50) _RxIndex = 0; 
+        } 
+        else { 
+            Rx_Flag = 1; 
+        }
+        HAL_UART_Receive_IT(&huart1, &rx_byte, 1); 
+    }
 }

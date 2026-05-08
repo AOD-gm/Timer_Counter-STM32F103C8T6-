@@ -4,7 +4,7 @@
 	#include "DS1307.h"
 	#include "HLK_LD2410.h"
 	#include <stdio.h> 
-
+	#include "WifiConfig.h"
 	extern LD2410_Data_t Radar;
 	int mode = 0;
 	int menu = 0;
@@ -349,40 +349,40 @@
 							break;
 							
 					case 4: // MÀN HÌNH RADAR
-														if (is_bg_drawn == 0) {
-																OLED_Clear(); 
-																OLED_Print("RADAR", 0, 0);
-																OLED_Print("#:Out", 95, 0);
-																OLED_Print("Status:", 0, 2);
-																OLED_Print("Moving:", 0, 4);
-																OLED_Print("Static:", 0, 6);
-																is_bg_drawn = 1;
-														}
+							if (is_bg_drawn == 0) {
+									OLED_Clear(); 
+									OLED_Print("RADAR", 0, 0);
+									OLED_Print("#:Out", 95, 0);
+									OLED_Print("Status:", 0, 2);
+									OLED_Print("Moving:", 0, 4);
+									OLED_Print("Static:", 0, 6);
+									is_bg_drawn = 1;
+							}
 
-														char txt_buffer[20];
+							char txt_buffer[20];
 
-														if (Radar.state == 0)      OLED_Print("CLEAR   ", 55, 2); 
-														else if (Radar.state == 1) OLED_Print("MOVING  ", 55, 2);
-														else if (Radar.state == 2) OLED_Print("STATIC  ", 55, 2);
-														else if (Radar.state == 3) OLED_Print("MOV+STA ", 55, 2);
+							if (Radar.state == 0)      OLED_Print("CLEAR   ", 55, 2); 
+							else if (Radar.state == 1) OLED_Print("MOVING  ", 55, 2);
+							else if (Radar.state == 2) OLED_Print("STATIC  ", 55, 2);
+							else if (Radar.state == 3) OLED_Print("MOV+STA ", 55, 2);
 
-														if (Radar.state == 1 || Radar.state == 3) {
-																sprintf(txt_buffer, "%-4d cm", Radar.moving_dist);
-																OLED_Print(txt_buffer, 55, 4);
-														} else {
-																OLED_Print("---     ", 55, 4); 
-														}
+							if (Radar.state == 1 || Radar.state == 3) {
+									sprintf(txt_buffer, "%-4d cm", Radar.moving_dist);
+									OLED_Print(txt_buffer, 55, 4);
+							} else {
+									OLED_Print("---     ", 55, 4); 
+							}
 
-														if (Radar.state == 2 || Radar.state == 3) {
-																sprintf(txt_buffer, "%-4d cm", Radar.static_dist);
-																OLED_Print(txt_buffer, 55, 6);
-														} else {
-																OLED_Print("---     ", 55, 6);
-														}
-														
-														HAL_Delay(50); 
-														break;
-						}
+							if (Radar.state == 2 || Radar.state == 3) {
+									sprintf(txt_buffer, "%-4d cm", Radar.static_dist);
+									OLED_Print(txt_buffer, 55, 6);
+							} else {
+									OLED_Print("---     ", 55, 6);
+							}
+							
+							HAL_Delay(50); 
+							break;
+		}
 	}
 
 void UI_System_Process(void) {
@@ -422,4 +422,41 @@ void UI_System_Process(void) {
             }
         }
     }
+}
+
+void UI_ESP_Process(void) {
+	if(Rx_Flag && _RxIndex>=10)
+	{
+		if(u8_RxBuff[0]=='T')
+		{
+			int h = (u8_RxBuff[1]-'0')*10 + (u8_RxBuff[2]-'0');
+			int m = (u8_RxBuff[3]-'0')*10 + (u8_RxBuff[4]-'0');
+			int s = (u8_RxBuff[5]-'0')*10 + (u8_RxBuff[6]-'0');
+			DS1307 set_timer;
+			set_timer.hours = h;
+			set_timer.minutes = m;
+			set_timer.seconds = s;
+			DS1307_SetTime(&set_timer); 
+		}
+		else if(u8_RxBuff[0]=='A')
+		{
+			int h = (u8_RxBuff[1]-'0')*10 + (u8_RxBuff[2]-'0');
+			int m = (u8_RxBuff[3]-'0')*10 + (u8_RxBuff[4]-'0');
+			int s = (u8_RxBuff[5]-'0')*10 + (u8_RxBuff[6]-'0');
+			DS1307 set_alarm;
+			set_alarm.hours = h;
+			set_alarm.minutes = m;
+			set_alarm.seconds = s;
+			DS1307_SetAlarm(&set_alarm); 
+			alarm_set=1;
+		}
+		else if(u8_RxBuff[0]=='D')
+		{
+			if(u8_RxBuff[1]=='1')
+				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
+			else
+				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+			
+		}
+	}
 }
