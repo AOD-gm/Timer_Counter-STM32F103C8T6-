@@ -4,7 +4,6 @@ static uint8_t rx_data;
 static uint8_t rx_buffer[32];    
 static uint8_t rx_index = 0;     
 UART_HandleTypeDef *ld2410_huart; 
-
 LD2410_Data_t Radar;
 void HLK_LD2410_Init(UART_HandleTypeDef *huart) {
     ld2410_huart = huart;

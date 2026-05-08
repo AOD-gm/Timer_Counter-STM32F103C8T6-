@@ -1,36 +1,36 @@
 	#include "Menu_UI.h"
-	#include "SSD1306.h"
-	#include "MH-R38.h"
-	#include "DS1307.h"
-	#include "HLK_LD2410.h"
-	#include <stdio.h> 
-	#include "WifiConfig.h"
-	extern LD2410_Data_t Radar;
-	int mode = 0;
-	int menu = 0;
-	int locate = 0;
-	int temp_hour = 0, temp_minute = 0, temp_second = 0, temp_date, temp_month, temp_year,temp_day;
-	int alarm_set = 0;
-	int led_stage = 0;
+	#define ESP_EN_PIN   GPIO_PIN_10
+	#define ESP_EN_PORT  GPIOB
+
+	uint8_t mode = 0;
+	uint8_t menu = 0;
+	uint8_t locate = 0;
+	uint8_t temp_hour = 0, temp_minute = 0, temp_second = 0, temp_date, temp_month, temp_year,temp_day;
+	uint8_t alarm_set = 0;
+	uint8_t led_stage = 0;
 	uint8_t setting = 0;
 	uint8_t choose = 0;
 	DS1307 time;
 	char time_str[20];
 	char date_str[20];
 	uint8_t is_bg_drawn = 0;
+	uint8_t set_mode=0;
+	uint8_t u8_RxBuff[50];
+	uint8_t RxIndex = 0;
+	uint8_t Rx_Flag = 0;
 	// 1. HÀM XỬ LÝ NHẬP SỐ
-	void Handle_SpcKey(char key, int *temp_val, int max_val) {
+	void Handle_SpcKey(char key, uint8_t *temp_val, uint8_t max_val) {
 			if (key >= '0' && key <= '9') {
 					uint8_t pressed_key = key - '0'; 
 					if (locate == 0) {
-							int max_chuc = max_val / 10;
+							uint8_t max_chuc = max_val / 10;
 							if (pressed_key <= max_chuc) {
 									*temp_val = pressed_key * 10;
 									locate = 1;
 							}
 					} 
 					else if (locate == 1) {
-							int tong_tam = *temp_val + pressed_key;
+							uint8_t tong_tam = *temp_val + pressed_key;
 							if (tong_tam <= max_val) {
 									*temp_val = tong_tam;
 									locate = 2;
@@ -100,11 +100,40 @@
 									OLED_Clear();
 									OLED_Print("Alarm Saved!", 20, 3);
 									alarm_set = 1;;
-															HAL_Delay(1000);
+									HAL_Delay(1000);
 							menu = 2; setting = 0; locate = 0; mode = 0; // Trở về setting
 							OLED_Clear();
 							}
 
+					}
+					else if(menu==3){
+						// LƯU MODE
+						if(set_mode==0){
+							OLED_Clear();
+							OLED_Print("Optimise Mode!", 20, 3);
+							HLK_LD2410_Enable();
+							LD2410_Set_Threshold(2, 100, 100); 
+							HAL_GPIO_WritePin(ESP_EN_PORT, ESP_EN_PIN, GPIO_PIN_SET);
+						}
+						else if(set_mode==1){
+							OLED_Clear();
+							OLED_Print("Normal Mode!", 25, 3);
+							HLK_LD2410_Enable();
+							LD2410_Set_Threshold(2, 60, 60);
+							HAL_GPIO_WritePin(ESP_EN_PORT, ESP_EN_PIN, GPIO_PIN_SET);
+						}
+						else if(set_mode==2){
+							OLED_Clear();
+							OLED_Print("Power Saving Mode!", 10, 3);
+							HLK_LD2410_Enable();
+							HLK_LD2410_Disable();
+							HAL_GPIO_WritePin(ESP_EN_PORT, ESP_EN_PIN, GPIO_PIN_RESET);
+						}
+						OLED_Clear();
+						OLED_Print("Mode Saved!", 25, 3);
+						HAL_Delay(1000);
+						menu=1; mode=0;
+						OLED_Clear();
 					}
 			} 
 			else if (key == '#') {
@@ -142,7 +171,7 @@
 			}
 
 			// --- MÀN HÌNH MENU CHÍNH ---
-			if (menu == 1) {
+			if (menu == 1 ) {
 					if (key == '2') { mode--; if (mode < 0) mode = 2; OLED_Clear(); }
 					else if (key == '8') { mode++; if (mode > 2) mode = 0; OLED_Clear(); }
 					Key_Save_Return(key); // Xử lý nhấn '*' để chọn, '#' để thoát
@@ -188,7 +217,25 @@
 					Key_Save_Return(key);
 					return;
 			}
-			
+			if(menu==3){
+		if(key=='A'){
+			// OPTIMISE MODE: CẢI THIỆN ĐỘ NHẠY VÀ ĐỘ CHÍNH XÁC
+			set_mode=0;
+			OLED_Clear();
+		}
+		else if(key=='B'){
+			// NORMAL MODE: CHẾ ĐỘ MẶC ĐỊNH CỦA CẢM BIẾN
+			set_mode=1;
+			OLED_Clear();
+		}
+		else if(key=='C'){
+			// POWER SAVING MODE: GIẢM TẦN SỐ QUÉT ĐỂ TIẾT KIỆM NĂNG LƯỢNG
+			set_mode=2;
+			OLED_Clear();
+		}
+		Key_Save_Return(key);
+	}
+
 			// --- MÀN HÌNH RADAR & MODE ---
 			if (menu == 3 || menu == 4) {
 					Key_Save_Return(key);
@@ -231,12 +278,13 @@
 			switch (menu) {
 					case 0: // MÀN HÌNH CHỜ
 							DS1307_GetTime(&time);
-							OLED_Print("WAIT MENU", 36, 0);
-							OLED_DrawSelectionBracket(30, 0, 70);
+							OLED_Print("WAIT MENU", 36, 1);
+							OLED_DrawSelectionBracket(30, 1, 70);
+							OLED_Print("A:Menu", 05, 0);
 							sprintf(time_str, "%02d:%02d", time.hours, time.minutes);
-							OLED_Print(time_str, 45, 1);
+							OLED_Print(time_str, 45, 2);
 							sprintf(date_str, "T%d %02d/%02d/20%02d", time.day, time.date, time.month, time.year);
-							OLED_Print(date_str, 25, 2);
+							OLED_Print(date_str, 25, 3);
 							
 							if (alarm_set == 1) {
 									DS1307 alarm_info;
@@ -266,6 +314,7 @@
 							
 					case 1: // MÀN HÌNH MENU CHÍNH
 							OLED_Print("MENU", 45, 0);
+							OLED_DrawSelectionBracket(40, 0, 50);
 							OLED_Print("Mode", 45, 2);
 							OLED_Print("Setting", 45, 4);
 							OLED_Print("Radar", 45, 6);
@@ -342,10 +391,13 @@
 							
 					case 3: // MÀN HÌNH CHẾ ĐỘ MODE
 							OLED_Print("--- CHE DO MODE ---", 10, 0);
-							OLED_Print("LED Status:", 10, 2);
-							if (led_stage == 1) OLED_Print("ON ", 90, 2);
-							else                OLED_Print("OFF", 90, 2);
-							OLED_Print("#: Thoat", 0, 7);
+							OLED_Print("A: Optimise", 10, 2);
+							OLED_Print("B: Normal", 10, 4);
+							OLED_Print("C: Power Saving", 10, 6);
+
+							if(set_mode == 0) OLED_DrawSelectionBox(10, 2, 100);
+							else if(set_mode == 1) OLED_DrawSelectionBox(10, 4, 90);
+							else if(set_mode == 2) OLED_DrawSelectionBox(10, 6, 120);
 							break;
 							
 					case 4: // MÀN HÌNH RADAR
@@ -422,10 +474,12 @@ void UI_System_Process(void) {
             }
         }
     }
+
+	
 }
 
 void UI_ESP_Process(void) {
-	if(Rx_Flag && _RxIndex>=10)
+	if(Rx_Flag && RxIndex>=10)
 	{
 		if(u8_RxBuff[0]=='T')
 		{
@@ -453,10 +507,19 @@ void UI_ESP_Process(void) {
 		else if(u8_RxBuff[0]=='D')
 		{
 			if(u8_RxBuff[1]=='1')
-				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
+				HAL_GPIO_WritePin(ESP_EN_PORT, ESP_EN_PIN, GPIO_PIN_SET);
 			else
-				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+				HAL_GPIO_WritePin(ESP_EN_PORT, ESP_EN_PIN, GPIO_PIN_RESET);
 			
 		}
+		memset(u8_RxBuff, 0, sizeof(u8_RxBuff));
+        RxIndex = 0;
+        Rx_Flag = 0;
+		
+	}
+	else if(Rx_Flag){
+		memset(u8_RxBuff, 0, sizeof(u8_RxBuff));
+        RxIndex = 0;
+        Rx_Flag = 0;
 	}
 }
