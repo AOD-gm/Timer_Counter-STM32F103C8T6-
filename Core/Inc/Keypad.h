@@ -16,8 +16,8 @@
 #define R4_Pin GPIO_PIN_15
 
 // định nghĩa chân cắm cột
-#define C1_Pin GPIO_PIN_12
-#define C2_Pin GPIO_PIN_11
+#define C1_Pin GPIO_PIN_11
+#define C2_Pin GPIO_PIN_12
 #define C3_Pin GPIO_PIN_8
 #define C4_Pin GPIO_PIN_9
 

@@ -523,7 +523,7 @@
     "last_paths": {
       "idf": "",
       "netlist": "",
-      "plot": "",
+      "plot": "../GiaCong/",
       "specctra_dsn": "",
       "vrml": ""
     },
