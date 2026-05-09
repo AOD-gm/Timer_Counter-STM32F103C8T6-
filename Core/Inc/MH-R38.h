@@ -27,6 +27,6 @@ extern uint8_t  New_Ir_Flag;
 extern uint32_t RM_Code;
 
 void IR_Init(TIM_HandleTypeDef *htim);
-void IR_EXTI_Handler(void);
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim);
 uint32_t Read_RM(void);
 
