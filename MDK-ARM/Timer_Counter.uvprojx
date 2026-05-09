@@ -430,6 +430,11 @@
               <FilePath>..\Core\Src\HLK_LD2410.c</FilePath>
             </File>
             <File>
+              <FileName>Esp_01.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\Esp_01.c</FilePath>
+            </File>
+            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/main.c</FilePath>

@@ -1,7 +1,8 @@
 	#include "Menu_UI.h"
 	#define ESP_EN_PIN   GPIO_PIN_10
 	#define ESP_EN_PORT  GPIOB
-
+	#define LED_PIN       GPIO_PIN_0
+	#define LED_PORT      GPIOA
 	uint8_t mode = 0;
 	uint8_t menu = 0;
 	uint8_t locate = 0;
@@ -14,10 +15,7 @@
 	char time_str[20];
 	char date_str[20];
 	uint8_t is_bg_drawn = 0;
-	uint8_t set_mode=0;
-	uint8_t u8_RxBuff[50];
-	uint8_t RxIndex = 0;
-	uint8_t Rx_Flag = 0;
+	uint8_t set_mode=1;
 	// 1. HÀM XỬ LÝ NHẬP SỐ
 	void Handle_SpcKey(char key, uint8_t *temp_val, uint8_t max_val) {
 			if (key >= '0' && key <= '9') {
@@ -67,6 +65,7 @@
 								if(setting >= 1 && setting <= 3){
 									// LƯU TIMER
 									DS1307 set_timer;
+									DS1307_GetTime(&set_timer);
 									set_timer.hours = temp_hour;
 									set_timer.minutes = temp_minute;
 									set_timer.seconds = temp_second;
@@ -75,12 +74,13 @@
 									OLED_Print("Timer Updated!", 15, 3);
 								}
 								else if(setting>=5 && setting <=8){
-									DS1307 set_timer;
-									set_timer.day = temp_day;
-									set_timer.date = temp_date;
-									set_timer.month = temp_month;
-									set_timer.year = temp_year;
-									DS1307_SetTime(&set_timer); 
+									DS1307 set_date;
+									DS1307_GetTime(&set_date);
+									set_date.day = temp_day;
+									set_date.date = temp_date;
+									set_date.month = temp_month;
+									set_date.year = temp_year;
+									DS1307_SetTime(&set_date); 
 									
 									OLED_Clear();
 									OLED_Print("Ngay Updated!", 15, 3);
@@ -107,13 +107,13 @@
 
 					}
 					else if(menu==3){
-						// LƯU MODE
 						if(set_mode==0){
 							OLED_Clear();
 							OLED_Print("Optimise Mode!", 20, 3);
 							HLK_LD2410_Enable();
-							LD2410_Set_Threshold(2, 100, 100); 
+							LD2410_Set_Threshold(2, 100, 100);  	
 							HAL_GPIO_WritePin(ESP_EN_PORT, ESP_EN_PIN, GPIO_PIN_SET);
+							HAL_Delay(500);
 						}
 						else if(set_mode==1){
 							OLED_Clear();
@@ -121,6 +121,7 @@
 							HLK_LD2410_Enable();
 							LD2410_Set_Threshold(2, 60, 60);
 							HAL_GPIO_WritePin(ESP_EN_PORT, ESP_EN_PIN, GPIO_PIN_SET);
+							HAL_Delay(500);
 						}
 						else if(set_mode==2){
 							OLED_Clear();
@@ -128,10 +129,8 @@
 							HLK_LD2410_Enable();
 							HLK_LD2410_Disable();
 							HAL_GPIO_WritePin(ESP_EN_PORT, ESP_EN_PIN, GPIO_PIN_RESET);
+							HAL_Delay(500);
 						}
-						OLED_Clear();
-						OLED_Print("Mode Saved!", 25, 3);
-						HAL_Delay(1000);
 						menu=1; mode=0;
 						OLED_Clear();
 					}
@@ -281,11 +280,16 @@
 							OLED_Print("WAIT MENU", 36, 1);
 							OLED_DrawSelectionBracket(30, 1, 70);
 							OLED_Print("A:Menu", 05, 0);
+							OLED_Print("B:Setting", 70, 0);
 							sprintf(time_str, "%02d:%02d", time.hours, time.minutes);
 							OLED_Print(time_str, 45, 2);
 							sprintf(date_str, "T%d %02d/%02d/20%02d", time.day, time.date, time.month, time.year);
 							OLED_Print(date_str, 25, 3);
 							
+							OLED_Print("Mode: ", 0, 5); 
+							if(set_mode == 0)      OLED_Print("Optimise    ", 40, 5); 
+							else if(set_mode == 1) OLED_Print("Normal      ", 40, 5);
+							else if(set_mode == 2) OLED_Print("Power Saving", 40, 5);
 							if (alarm_set == 1) {
 									DS1307 alarm_info;
 									DS1307_GetAlarm(&alarm_info);
@@ -303,10 +307,12 @@
 											
 											if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_SET) {
 													OLED_Print("Den da SANG!", 15, 3);
+													
 											} else {
 													OLED_Print("Den da TAT!", 15, 3);
 											}
 											HAL_Delay(1000);
+											OLED_Clear();
 											alarm_set = 0;
 									}
 							}
@@ -337,10 +343,10 @@
 							}
 							else if (setting == 4) {
 									OLED_Print("--- CHON MUC ---", 15, 0); 
-                                OLED_DrawSelectionBracket(15, 2, 120);
+                                OLED_DrawSelectionBracket(15, 0, 100);
                                 OLED_Print("1: Chinh Ngay Thang", 5, 2);
                                 OLED_Print("2: Chinh Gio Phut ", 5, 4);
-                                
+
                                 OLED_Print("#: Quay lai", 0, 7);
 							}
 							else if(setting == 9){
@@ -457,7 +463,7 @@ void UI_System_Process(void) {
     else {
         // --- CHẾ ĐỘ 2: KHÔNG CÀI BÁO THỨC (RADAR LÀM ĐÈN THÔNG MINH) ---
         
-        if (Radar.state != 0) {
+        if (Radar.state != 0 && set_mode != 2) {
  
             HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);   
             HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);  
@@ -479,47 +485,54 @@ void UI_System_Process(void) {
 }
 
 void UI_ESP_Process(void) {
-	if(Rx_Flag && RxIndex>=10)
+	if(Rx_Flag)
 	{
 		if(u8_RxBuff[0]=='T')
 		{
-			int h = (u8_RxBuff[1]-'0')*10 + (u8_RxBuff[2]-'0');
-			int m = (u8_RxBuff[3]-'0')*10 + (u8_RxBuff[4]-'0');
-			int s = (u8_RxBuff[5]-'0')*10 + (u8_RxBuff[6]-'0');
+			uint8_t h = (u8_RxBuff[2]-'0')*10 + (u8_RxBuff[3]-'0');
+            uint8_t m = (u8_RxBuff[5]-'0')*10 + (u8_RxBuff[6]-'0');
+            uint8_t s = (u8_RxBuff[8]-'0')*10 + (u8_RxBuff[9]-'0');
 			DS1307 set_timer;
+			DS1307_GetTime(&set_timer);
 			set_timer.hours = h;
 			set_timer.minutes = m;
 			set_timer.seconds = s;
 			DS1307_SetTime(&set_timer); 
+			OLED_Clear();
+			OLED_Print("Timer Updated!", 15, 3);
+		HAL_Delay(500);
+		OLED_Clear();
 		}
 		else if(u8_RxBuff[0]=='A')
 		{
-			int h = (u8_RxBuff[1]-'0')*10 + (u8_RxBuff[2]-'0');
-			int m = (u8_RxBuff[3]-'0')*10 + (u8_RxBuff[4]-'0');
-			int s = (u8_RxBuff[5]-'0')*10 + (u8_RxBuff[6]-'0');
+			uint8_t h = (u8_RxBuff[2]-'0')*10 + (u8_RxBuff[3]-'0');
+			uint8_t m = (u8_RxBuff[5]-'0')*10 + (u8_RxBuff[6]-'0');
+			uint8_t s = (u8_RxBuff[8]-'0')*10 + (u8_RxBuff[9]-'0');
 			DS1307 set_alarm;
+			DS1307_GetTime(&set_alarm);
 			set_alarm.hours = h;
 			set_alarm.minutes = m;
 			set_alarm.seconds = s;
 			DS1307_SetAlarm(&set_alarm); 
 			alarm_set=1;
+			OLED_Clear();
+			OLED_Print("Alarm Updated!", 15, 3);
+		HAL_Delay(500);
+		OLED_Clear();
 		}
 		else if(u8_RxBuff[0]=='D')
 		{
-			if(u8_RxBuff[1]=='1')
+			if(u8_RxBuff[2]=='1')
 				HAL_GPIO_WritePin(ESP_EN_PORT, ESP_EN_PIN, GPIO_PIN_SET);
 			else
 				HAL_GPIO_WritePin(ESP_EN_PORT, ESP_EN_PIN, GPIO_PIN_RESET);
 			
 		}
+
 		memset(u8_RxBuff, 0, sizeof(u8_RxBuff));
         RxIndex = 0;
         Rx_Flag = 0;
 		
-	}
-	else if(Rx_Flag){
-		memset(u8_RxBuff, 0, sizeof(u8_RxBuff));
-        RxIndex = 0;
-        Rx_Flag = 0;
+	
 	}
 }

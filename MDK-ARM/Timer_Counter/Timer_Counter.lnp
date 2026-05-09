@@ -7,6 +7,7 @@
 "timer_counter\mh-r38.o"
 "timer_counter\menu_ui.o"
 "timer_counter\hlk_ld2410.o"
+"timer_counter\esp_01.o"
 "timer_counter\main.o"
 "timer_counter\stm32f1xx_it.o"
 "timer_counter\stm32f1xx_hal_msp.o"
