@@ -132,6 +132,7 @@ int main(void)
 		char key_pad=Keypad_Read();
 		uint32_t key_ir = Read_RM();
     UI_ESP_Process();
+    UI_System_Process();
 		UI_Proccess_Keypad(key_pad);
 		UI_Proccess_IR(key_ir);
 		UI_Render();
