@@ -19,7 +19,7 @@ void DS1307_SetTime(DS1307 *time) {
     uint8_t data[7];
     data[0] = DecToBcd(time->seconds);
     data[1] = DecToBcd(time->minutes);
-    data[2] = DecToBcd(time->hours);
+    data[2] = DecToBcd(time->hours) & 0x3F; // Đảm bảo bit 6 (chế độ 12h/24h) được tắt
     data[3] = DecToBcd(time->day);
     data[4] = DecToBcd(time->date);
     data[5] = DecToBcd(time->month);
@@ -45,7 +45,7 @@ void DS1307_SetAlarm(DS1307 *time){
 		uint8_t data[4];
 		data[0]=DecToBcd(time->seconds) & 0x7F;
 		data[1]=DecToBcd(time->minutes) & 0x7F;
-		data[2]=DecToBcd(time->hours) & 0x7F;
+		data[2]=DecToBcd(time->hours) & 0x3F;
 		data[3] = 0x80;                                                                                                                                                                                                                                                                                                                      
 	
 		HAL_I2C_Mem_Write(&hi2c1,  DS1307_I2C_ADDR, DS1307_SECS_A1M1, I2C_MEMADD_SIZE_8BIT, data ,4, 100);

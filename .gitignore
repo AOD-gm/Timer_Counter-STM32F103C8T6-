@@ -25,4 +25,12 @@ Listings/
 
 # Bỏ qua file tạm của CubeMX
 .mxproject
-
+build/
+.cache/
+compile_commands.json
+cmake/
+CMakePresets.json
+MDK-ARM/Listings/
+MDK-ARM/Objects/
+MDK-ARM/*.uvguix.*
+MDK-ARM/*.uvoptx
