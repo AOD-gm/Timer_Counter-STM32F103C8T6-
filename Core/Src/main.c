@@ -58,6 +58,7 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 extern uint8_t rx_byte;
+char key_pad = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -129,9 +130,10 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 		
-		char key_pad=Keypad_Read();
+ key_pad=Keypad_Read();
 		uint32_t key_ir = Read_RM();
     UI_ESP_Process();
+		UI_System_Process();
 		UI_Proccess_Keypad(key_pad);
 		UI_Proccess_IR(key_ir);
 		UI_Render();

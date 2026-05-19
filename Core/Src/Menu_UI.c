@@ -296,25 +296,6 @@
 									char alarm_str[20];
 									sprintf(alarm_str, "ALARM: %02d:%02d:%02d", alarm_info.hours, alarm_info.minutes, alarm_info.seconds);
 									OLED_Print(alarm_str, 0, 4);
-									
-									// Logic Kích hoạt báo thức
-									if (alarm_info.hours == time.hours && 
-											alarm_info.minutes == time.minutes && 
-											alarm_info.seconds == time.seconds) {
-											HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_0); 
-											HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13); 
-											OLED_Clear();
-											
-											if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_SET) {
-													OLED_Print("Den da SANG!", 15, 3);
-													
-											} else {
-													OLED_Print("Den da TAT!", 15, 3);
-											}
-											HAL_Delay(1000);
-											OLED_Clear();
-											alarm_set = 0;
-									}
 							}
 							break;
 							
@@ -446,18 +427,33 @@
 void UI_System_Process(void) {
     static uint32_t timer_radar = 0;
     static uint8_t light_active = 0; 
-
+	DS1307_GetTime(&time);
+	        DS1307 alarm_info;
+        DS1307_GetAlarm(&alarm_info);
     if (alarm_set == 1) {
         // --- CHẾ ĐỘ 1: ĐANG CÀI BÁO THỨC (ƯU TIÊN) 
-        DS1307 alarm_info;
-        DS1307_GetAlarm(&alarm_info);
-        
+
         if (alarm_info.hours == time.hours && 
-            alarm_info.minutes == time.minutes && 
-            alarm_info.seconds == time.seconds) 
+            alarm_info.minutes == time.minutes) 
         {
-            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_0);
-            HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+    
+			alarm_set = 0; 
+			for (int i = 0; i < 10; i++) {
+    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+    HAL_Delay(100);
+}
+			// OLED_Clear();
+			
+			// if (HAL_GPIO_ReadPin(LED_PORT, LED_PIN) == GPIO_PIN_SET) {
+			// 		OLED_Print("Den da SANG!", 15, 3);
+			// 		HAL_GPIO_WritePin(LED_PORT,LED_PIN,GPIO_PIN_SET);
+			// } else {
+			// 		OLED_Print("Den da TAT!", 15, 3);
+			// 							HAL_GPIO_WritePin(LED_PORT,LED_PIN,GPIO_PIN_RESET);
+			// }
+			// HAL_Delay(500);
+			// OLED_Clear();
+			return;
         }
     } 
     else {
@@ -465,7 +461,6 @@ void UI_System_Process(void) {
         
         if (Radar.state != 0 && set_mode != 2) {
  
-            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);   
             HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);  
             light_active = 1;
             timer_radar = HAL_GetTick(); 
@@ -473,8 +468,7 @@ void UI_System_Process(void) {
         else {
             if (light_active == 1) {
                 if (HAL_GetTick() - timer_radar >= 5000) {
-                    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET); 
-                    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+                  //  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
                     light_active = 0;
                 }
             }
@@ -523,9 +517,9 @@ void UI_ESP_Process(void) {
 		else if(u8_RxBuff[0]=='D')
 		{
 			if(u8_RxBuff[2]=='1')
-				HAL_GPIO_WritePin(ESP_EN_PORT, ESP_EN_PIN, GPIO_PIN_SET);
+				HAL_GPIO_WritePin(LED_PORT, LED_PIN, GPIO_PIN_SET);
 			else
-				HAL_GPIO_WritePin(ESP_EN_PORT, ESP_EN_PIN, GPIO_PIN_RESET);
+				HAL_GPIO_WritePin(LED_PORT, LED_PIN, GPIO_PIN_RESET);
 			
 		}
 

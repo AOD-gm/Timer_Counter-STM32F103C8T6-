@@ -1,11 +1,12 @@
 #include "MH-R38.h"
 
  TIM_HandleTypeDef *ir_htim;
- uint16_t IR_Time1 = 0, IR_Time2 = 0, IR_Diff = 0;
- uint32_t IR_Value = 0;
- uint8_t  IR_Bit_Count = 0;
- uint32_t RM_Code = 0;
- uint8_t  New_Ir_Flag = 0;
+uint32_t IR_Time_Last = 0; 
+uint16_t IR_Diff = 0;
+uint32_t IR_Value = 0;
+uint8_t  IR_Bit_Count = 0;
+uint32_t RM_Code = 0;
+uint8_t  New_Ir_Flag = 0;
 void IR_Init(TIM_HandleTypeDef *htim){
     ir_htim = htim;
     HAL_TIM_IC_Start_IT(ir_htim, TIM_CHANNEL_2);
