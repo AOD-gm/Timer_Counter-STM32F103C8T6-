@@ -16,6 +16,8 @@
 	char date_str[20];
 	uint8_t is_bg_drawn = 0;
 	uint8_t set_mode=1;
+	uint32_t timer_radar = 0;
+	uint8_t light_active = 0;
 	// 1. HÀM XỬ LÝ NHẬP SỐ
 	void Handle_SpcKey(char key, uint8_t *temp_val, uint8_t max_val) {
 			if (key >= '0' && key <= '9') {
@@ -276,7 +278,6 @@
 	void UI_Render(void) {
 			switch (menu) {
 					case 0: // MÀN HÌNH CHỜ
-							DS1307_GetTime(&time);
 							OLED_Print("WAIT MENU", 36, 1);
 							OLED_DrawSelectionBracket(30, 1, 70);
 							OLED_Print("A:Menu", 05, 0);
@@ -296,25 +297,6 @@
 									char alarm_str[20];
 									sprintf(alarm_str, "ALARM: %02d:%02d:%02d", alarm_info.hours, alarm_info.minutes, alarm_info.seconds);
 									OLED_Print(alarm_str, 0, 4);
-									
-									// Logic Kích hoạt báo thức
-									if (alarm_info.hours == time.hours && 
-											alarm_info.minutes == time.minutes && 
-											alarm_info.seconds == time.seconds) {
-											HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_0); 
-											HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13); 
-											OLED_Clear();
-											
-											if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_SET) {
-													OLED_Print("Den da SANG!", 15, 3);
-													
-											} else {
-													OLED_Print("Den da TAT!", 15, 3);
-											}
-											HAL_Delay(1000);
-											OLED_Clear();
-											alarm_set = 0;
-									}
 							}
 							break;
 							
@@ -444,44 +426,52 @@
 	}
 
 void UI_System_Process(void) {
-    static uint32_t timer_radar = 0;
-    static uint8_t light_active = 0; 
+    DS1307_GetTime(&time); // Luôn cập nhật thời gian thực
 
+    // 1. KIỂM TRA BÁO THỨC (ALARM)
     if (alarm_set == 1) {
-        // --- CHẾ ĐỘ 1: ĐANG CÀI BÁO THỨC (ƯU TIÊN) 
         DS1307 alarm_info;
         DS1307_GetAlarm(&alarm_info);
         
         if (alarm_info.hours == time.hours && 
             alarm_info.minutes == time.minutes && 
-            alarm_info.seconds == time.seconds) 
+            time.seconds < 2) 
         {
-            HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_0);
-            HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-        }
-    } 
-    else {
-        // --- CHẾ ĐỘ 2: KHÔNG CÀI BÁO THỨC (RADAR LÀM ĐÈN THÔNG MINH) ---
-        
-        if (Radar.state != 0 && set_mode != 2) {
- 
-            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);   
-            HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);  
             light_active = 1;
             timer_radar = HAL_GetTick(); 
-        } 
-        else {
-            if (light_active == 1) {
-                if (HAL_GetTick() - timer_radar >= 5000) {
-                    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET); 
-                    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
-                    light_active = 0;
-                }
-            }
+            alarm_set = 0; 
         }
     }
 
-	
+    // 2. KIỂM TRA RADAR (SMART LIGHT)
+    if (Radar.state != 0 && set_mode != 2) {
+        light_active = 1;
+        timer_radar = HAL_GetTick(); 
+    } 
+
+    // 3. ĐIỀU KHIỂN CHÂN ĐÈN (LED_PIN)
+    if (light_active == 1) {
+        HAL_GPIO_WritePin(LED_PORT, LED_PIN, GPIO_PIN_SET);   
+        HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET); // Onboard LED ON (Active Low)
+
+        // Tự động tắt sau 5 giây nếu không còn phát hiện người
+        if (Radar.state == 0) {
+            if (HAL_GetTick() - timer_radar >= 5000) {
+                light_active = 0;
+            }
+        }
+    } 
+    else {
+        HAL_GPIO_WritePin(LED_PORT, LED_PIN, GPIO_PIN_RESET); 
+        HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET); // Onboard LED OFF
+    }
+
+    // 4. ĐIỀU KHIỂN NGUỒN ESP (ESP_EN_PIN) - CHỈ TẮT KHI Ở CHẾ ĐỘ POWER SAVING (set_mode == 2)
+    if (set_mode == 2) {
+        HAL_GPIO_WritePin(ESP_EN_PORT, ESP_EN_PIN, GPIO_PIN_RESET); // Tắt ESP để tiết kiệm điện
+    } else {
+        HAL_GPIO_WritePin(ESP_EN_PORT, ESP_EN_PIN, GPIO_PIN_SET);   // Luôn bật ESP để duy trì kết nối Web
+    }
 }
 
 void UI_ESP_Process(void) {
@@ -522,17 +512,17 @@ void UI_ESP_Process(void) {
 		}
 		else if(u8_RxBuff[0]=='D')
 		{
-			if(u8_RxBuff[2]=='1')
-				HAL_GPIO_WritePin(ESP_EN_PORT, ESP_EN_PIN, GPIO_PIN_SET);
-			else
-				HAL_GPIO_WritePin(ESP_EN_PORT, ESP_EN_PIN, GPIO_PIN_RESET);
-			
+			if(u8_RxBuff[2]=='1') {
+				light_active = 1;
+				timer_radar = HAL_GetTick(); // Bật thủ công và reset timer
+			}
+			else {
+				light_active = 0; // Tắt thủ công
+			}
 		}
 
 		memset(u8_RxBuff, 0, sizeof(u8_RxBuff));
         RxIndex = 0;
         Rx_Flag = 0;
-		
-	
 	}
 }
