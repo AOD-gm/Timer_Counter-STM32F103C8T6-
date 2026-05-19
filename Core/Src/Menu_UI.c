@@ -543,15 +543,6 @@ void UI_ESP_Process(void) {
 				temp_second = set_alarm.seconds;
 
 				OLED_Clear();
-				OLED_Print("Set:", 40, 0);
-				char buf1[20], buf2[20];
-				sprintf(buf1, "Send: %02d:%02d:%02d", h, m, s);
-				sprintf(buf2, "Read: %02d:%02d:%02d", temp_hour, temp_minute, temp_second);
-				OLED_Print(buf1, 10, 2);
-				OLED_Print(buf2, 10, 4);
-				OLED_Print("(Match=OK)", 20, 6);
-				HAL_Delay(2000);
-				OLED_Clear();
 				alarm_set=1;
 			}
 		}

@@ -3,7 +3,7 @@
 <title>Static Call Graph - [Timer_Counter\Timer_Counter.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image Timer_Counter\Timer_Counter.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6240002: Last Updated: Tue May 19 15:20:58 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6240002: Last Updated: Wed May 20 05:51:58 2026
 <BR><P>
 <H3>Maximum Stack Usage =        616 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -529,8 +529,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[37]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_sputc
 <LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_printf_char_common
 </UL>
-<BR>[Called By]<UL><LI><a href="#[108]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UI_ESP_Process
-<LI><a href="#[10d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UI_Render
+<BR>[Called By]<UL><LI><a href="#[10d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UI_Render
 </UL>
 
 <P><STRONG><a name="[109]"></a>__aeabi_memclr</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, rt_memclr.o(.text))
@@ -1698,8 +1697,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Receive_IT
 </UL>
 
-<P><STRONG><a name="[108]"></a>UI_ESP_Process</STRONG> (Thumb, 876 bytes, Stack size 152 bytes, menu_ui.o(.text.UI_ESP_Process))
-<BR><BR>[Stack]<UL><LI>Max Depth = 360 + Unknown Stack Size
+<P><STRONG><a name="[108]"></a>UI_ESP_Process</STRONG> (Thumb, 738 bytes, Stack size 80 bytes, menu_ui.o(.text.UI_ESP_Process))
+<BR><BR>[Stack]<UL><LI>Max Depth = 288 + Unknown Stack Size
 <LI>Call Chain = UI_ESP_Process &rArr; OLED_Print &rArr; OLED_Write &rArr; OLED_Cusor &rArr; Oled_SendCmd &rArr; HAL_I2C_Mem_Write &rArr; I2C_RequestMemoryWrite &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
@@ -1711,7 +1710,6 @@ Global Symbols
 <LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_GetTime
 <LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_SetTime
 <LI><a href="#[109]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr
-<LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sprintf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
