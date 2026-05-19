@@ -182,8 +182,15 @@
 			// --- MÀN HÌNH SETTING ---
 			if (menu == 2) {
 					if (setting == 0) { // Đang ở Menu chọn loại Setting
-							if (key == '4') { choose = 1; setting = 4; OLED_Clear(); }
-							else if (key == '6') { choose = 2; setting = 1; OLED_Clear(); }
+							if (key == '4') { choose = 1; setting = 4; locate = 0; temp_hour = 0; temp_minute = 0; temp_second = 0; OLED_Clear(); }
+							else if (key == '6') {
+								DS1307 get_alarm;
+								DS1307_GetAlarm(&get_alarm);
+								temp_hour = get_alarm.hours;
+								temp_minute = get_alarm.minutes;
+								temp_second = get_alarm.seconds;
+								choose = 2; setting = 1; locate = 0; OLED_Clear();
+							}
 					} 
 					else if (setting == 4) { // Đang ở bảng Hướng dẫn, chờ chọn B C D
 						
@@ -291,13 +298,18 @@
 							if(set_mode == 0)      OLED_Print("Optimise    ", 40, 5); 
 							else if(set_mode == 1) OLED_Print("Normal      ", 40, 5);
 							else if(set_mode == 2) OLED_Print("Power Saving", 40, 5);
-							if (alarm_set == 1) {
-									DS1307 alarm_info;
-									DS1307_GetAlarm(&alarm_info);
-									char alarm_str[20];
-									sprintf(alarm_str, "ALARM: %02d:%02d:%02d", alarm_info.hours, alarm_info.minutes, alarm_info.seconds);
-									OLED_Print(alarm_str, 0, 4);
-							}
+					if (alarm_set == 1) {
+						DS1307 alarm_info;
+						DS1307_GetAlarm(&alarm_info);
+						DS1307 time_now;
+						DS1307_GetTime(&time_now);
+						char alarm_str[30], time_str2[20];
+						sprintf(alarm_str, "Alm:%02d:%02d:%02d", alarm_info.hours, alarm_info.minutes, alarm_info.seconds);
+						sprintf(time_str2, "Now:%02d:%02d:%02d", time_now.hours, time_now.minutes, time_now.seconds);
+						OLED_Print(alarm_str, 0, 4);
+						OLED_Print(time_str2, 0, 7);
+						HAL_Delay(50);
+					}
 							break;
 							
 					case 1: // MÀN HÌNH MENU CHÍNH
@@ -479,36 +491,69 @@ void UI_ESP_Process(void) {
 	{
 		if(u8_RxBuff[0]=='T')
 		{
-			uint8_t h = (u8_RxBuff[2]-'0')*10 + (u8_RxBuff[3]-'0');
-            uint8_t m = (u8_RxBuff[5]-'0')*10 + (u8_RxBuff[6]-'0');
-            uint8_t s = (u8_RxBuff[8]-'0')*10 + (u8_RxBuff[9]-'0');
-			DS1307 set_timer;
-			DS1307_GetTime(&set_timer);
-			set_timer.hours = h;
-			set_timer.minutes = m;
-			set_timer.seconds = s;
-			DS1307_SetTime(&set_timer); 
+			// Extract digits only for HH:MM:SS
+			uint8_t digits[6];
+			int digit_idx = 0;
+			for(int i = 1; i < 20 && digit_idx < 6; i++) {
+				if(u8_RxBuff[i] >= '0' && u8_RxBuff[i] <= '9') {
+					digits[digit_idx++] = u8_RxBuff[i] - '0';
+				}
+			}
+			if(digit_idx == 6) {
+				uint8_t h = digits[0] * 10 + digits[1];
+				uint8_t m = digits[2] * 10 + digits[3];
+				uint8_t s = digits[4] * 10 + digits[5];
+				DS1307 set_timer;
+				DS1307_GetTime(&set_timer);
+				set_timer.hours = h;
+				set_timer.minutes = m;
+				set_timer.seconds = s;
+				DS1307_SetTime(&set_timer);
+				OLED_Clear();
+				OLED_Print("Timer Updated!", 15, 3);
+			HAL_Delay(500);
 			OLED_Clear();
-			OLED_Print("Timer Updated!", 15, 3);
-		HAL_Delay(500);
-		OLED_Clear();
+			}
 		}
 		else if(u8_RxBuff[0]=='A')
 		{
-			uint8_t h = (u8_RxBuff[2]-'0')*10 + (u8_RxBuff[3]-'0');
-			uint8_t m = (u8_RxBuff[5]-'0')*10 + (u8_RxBuff[6]-'0');
-			uint8_t s = (u8_RxBuff[8]-'0')*10 + (u8_RxBuff[9]-'0');
-			DS1307 set_alarm;
-			DS1307_GetAlarm(&set_alarm);
-			set_alarm.hours = h;
-			set_alarm.minutes = m;
-			set_alarm.seconds = s;
-			DS1307_SetAlarm(&set_alarm); 
-			alarm_set=1;
-			OLED_Clear();
-			OLED_Print("Alarm Updated!", 15, 3);
-		HAL_Delay(500);
-		OLED_Clear();
+			// Extract digits only for HH:MM:SS
+			uint8_t digits[6];
+			int digit_idx = 0;
+			for(int i = 1; i < 20 && digit_idx < 6; i++) {
+				if(u8_RxBuff[i] >= '0' && u8_RxBuff[i] <= '9') {
+					digits[digit_idx++] = u8_RxBuff[i] - '0';
+				}
+			}
+			if(digit_idx == 6) {
+				uint8_t h = digits[0] * 10 + digits[1];
+				uint8_t m = digits[2] * 10 + digits[3];
+				uint8_t s = digits[4] * 10 + digits[5];
+				DS1307 set_alarm;
+				DS1307_GetAlarm(&set_alarm);
+				set_alarm.hours = h;
+				set_alarm.minutes = m;
+				set_alarm.seconds = s;
+				DS1307_SetAlarm(&set_alarm);
+				HAL_Delay(100);
+
+				DS1307_GetAlarm(&set_alarm);
+				temp_hour = set_alarm.hours;
+				temp_minute = set_alarm.minutes;
+				temp_second = set_alarm.seconds;
+
+				OLED_Clear();
+				OLED_Print("Set:", 40, 0);
+				char buf1[20], buf2[20];
+				sprintf(buf1, "Send: %02d:%02d:%02d", h, m, s);
+				sprintf(buf2, "Read: %02d:%02d:%02d", temp_hour, temp_minute, temp_second);
+				OLED_Print(buf1, 10, 2);
+				OLED_Print(buf2, 10, 4);
+				OLED_Print("(Match=OK)", 20, 6);
+				HAL_Delay(2000);
+				OLED_Clear();
+				alarm_set=1;
+			}
 		}
 		else if(u8_RxBuff[0]=='D')
 		{

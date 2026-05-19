@@ -43,29 +43,19 @@ void DS1307_GetTime(DS1307 *time) {
 
 void DS1307_SetAlarm(DS1307 *time){
 		uint8_t data[4];
-		data[0]=DecToBcd(time->seconds) & 0x7F;
-		data[1]=DecToBcd(time->minutes) & 0x7F;
-		data[2]=DecToBcd(time->hours) & 0x3F;
-		data[3] = 0x80;                                                                                                                                                                                                                                                                                                                      
-	
-		HAL_I2C_Mem_Write(&hi2c1,  DS1307_I2C_ADDR, DS1307_SECS_A1M1, I2C_MEMADD_SIZE_8BIT, data ,4, 100);
-		//xem trang thai dieu khien hen gio
-		uint8_t ctrl;
-		HAL_I2C_Mem_Read(&hi2c1, DS1307_I2C_ADDR, DS1307_CONTROL, I2C_MEMADD_SIZE_8BIT, &ctrl, 1, 100);
-		ctrl |= 0x05;
-		HAL_I2C_Mem_Write(&hi2c1, DS1307_I2C_ADDR, DS1307_CONTROL, I2C_MEMADD_SIZE_8BIT, &ctrl, 1, 100);
-		// xem co flag hen gio
-		uint8_t status;
-		HAL_I2C_Mem_Read(&hi2c1, DS1307_I2C_ADDR, DS1307_STATUS, I2C_MEMADD_SIZE_8BIT, &status, 1, 100);
-		status &= 0xFE;
-		HAL_I2C_Mem_Write(&hi2c1, DS1307_I2C_ADDR, DS1307_STATUS, I2C_MEMADD_SIZE_8BIT, &status, 1, 100);
+		data[0] = DecToBcd(time->seconds);
+		data[1] = DecToBcd(time->minutes);
+		data[2] = DecToBcd(time->hours) & 0x3F;
+		data[3] = 0x80;
+
+		HAL_I2C_Mem_Write(&hi2c1, DS1307_I2C_ADDR, DS1307_SECS_A1M1, I2C_MEMADD_SIZE_8BIT, data, 4, 100);
 }
 	
 void DS1307_GetAlarm(DS1307 *time){
-		uint8_t buffer[3];
-		HAL_I2C_Mem_Read(&hi2c1, DS1307_I2C_ADDR, DS1307_SECS_A1M1, I2C_MEMADD_SIZE_8BIT, buffer, 3, 100);
+		uint8_t buffer[4];
+		HAL_I2C_Mem_Read(&hi2c1, DS1307_I2C_ADDR, DS1307_SECS_A1M1, I2C_MEMADD_SIZE_8BIT, buffer, 4, 100);
 		time->seconds = BcdToDec(buffer[0] & 0x7F);
     time->minutes = BcdToDec(buffer[1] & 0x7F);
-    time->hours   = BcdToDec(buffer[2] & 0x3F);
+	    time->hours   = BcdToDec(buffer[2] & 0x7F);
 
 }
