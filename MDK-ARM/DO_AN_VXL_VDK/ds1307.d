@@ -1,5 +1,5 @@
-./do_an_vxl_vdk/stm32f1xx_hal_spi.o: \
-  ..\Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_spi.c \
+./do_an_vxl_vdk/ds1307.o: ..\..\Thu_Vien\DS1307\DS1307.c \
+  ..\..\Thu_Vien\DS1307\DS1307.h \
   ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal.h \
   ..\Core\Inc\stm32f1xx_hal_conf.h \
   ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_rcc.h \
