@@ -619,9 +619,47 @@ void UI_ESP_Process(void) {
 				alarm_set=1;
 			}
 		}
+else if(u8_RxBuff[0] == 'E') 
+{
+    uint8_t digits[8];
+    int digit_idx = 0;
+
+    for(int i = 1; i < 30 && digit_idx < 8; i++) { 
+        if(u8_RxBuff[i] == '\0') break; 
+        
+        if(u8_RxBuff[i] >= '0' && u8_RxBuff[i] <= '9') {
+            digits[digit_idx++] = u8_RxBuff[i] - '0';
+        }
+    }
+    
+    if(digit_idx == 8) {
+        uint8_t d = digits[0] * 10 + digits[1];
+        uint8_t m = digits[2] * 10 + digits[3];
+        
+
+        uint8_t y = digits[6] * 10 + digits[7]; 
+        
+        DS3231 set_date;
+        DS3231_GetTime(&set_date); 
+                set_date.date = d;
+        set_date.month = m;
+        set_date.year = y; 
+        
+        DS3231_SetTime(&set_date);
+
+        DS3231_GetTime(&set_date);
+        char bufd[30];
+        sprintf(bufd, "D:%02d/%02d/20%02d", set_date.date, set_date.month, set_date.year);
+        OLED_Clear();
+        OLED_Print("Date Updated!", 15, 2);
+        OLED_Print(bufd, 5, 4);
+        HAL_Delay(800);
+        OLED_Clear();
+    }
+}
 		else if(u8_RxBuff[0]=='D')
 		{
-			// Tìm ký tự '1' hoặc '0' trong buffer (hỗ trợ "D1", "D:1", "D=1", ...)
+
 			int found = -1;
 			for (int i = 1; i < sizeof(u8_RxBuff); i++) {
 				char c = u8_RxBuff[i];
@@ -631,10 +669,10 @@ void UI_ESP_Process(void) {
 			}
 			if (found == 1) {
 				light_active = 1;
-				timer_radar = HAL_GetTick(); // Bật thủ công và reset timer
-				alarm_active = 0; // manual on should not be treated as alarm
-				manual_active = 1; // mark manual on so auto-off won't apply
-				manual_override_off = 0; // cancel any previous manual-off block
+				timer_radar = HAL_GetTick(); 
+				alarm_active = 0; 
+				manual_active = 1;
+				manual_override_off = 0; 
 			} else if (found == 0) {
 				light_active = 0; // Tắt thủ công
 				alarm_active = 0; // nếu đang ở chế độ báo thức, hủy nó khi tắt thủ công
