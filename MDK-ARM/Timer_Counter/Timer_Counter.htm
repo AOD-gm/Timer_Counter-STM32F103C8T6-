@@ -3,7 +3,7 @@
 <title>Static Call Graph - [Timer_Counter\Timer_Counter.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image Timer_Counter\Timer_Counter.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6240002: Last Updated: Sun May 31 04:03:28 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6240002: Last Updated: Sun May 31 06:47:20 2026
 <BR><P>
 <H3>Maximum Stack Usage =        608 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -1703,8 +1703,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Receive_IT
 </UL>
 
-<P><STRONG><a name="[108]"></a>UI_ESP_Process</STRONG> (Thumb, 974 bytes, Stack size 136 bytes, menu_ui.o(.text.UI_ESP_Process))
-<BR><BR>[Stack]<UL><LI>Max Depth = 344 + Unknown Stack Size
+<P><STRONG><a name="[108]"></a>UI_ESP_Process</STRONG> (Thumb, 1314 bytes, Stack size 176 bytes, menu_ui.o(.text.UI_ESP_Process))
+<BR><BR>[Stack]<UL><LI>Max Depth = 384 + Unknown Stack Size
 <LI>Call Chain = UI_ESP_Process &rArr; OLED_Print &rArr; OLED_Write &rArr; OLED_Cusor &rArr; Oled_SendCmd &rArr; HAL_I2C_Mem_Write &rArr; I2C_RequestMemoryWrite &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_GetAlarm

@@ -631,31 +631,23 @@ else if(u8_RxBuff[0] == 'E')
             digits[digit_idx++] = u8_RxBuff[i] - '0';
         }
     }
-    
+
     if(digit_idx == 8) {
-        uint8_t d = digits[0] * 10 + digits[1];
-        uint8_t m = digits[2] * 10 + digits[3];
-        
+        uint8_t target_date  = digits[0] * 10 + digits[1];
+        uint8_t target_month = digits[2] * 10 + digits[3];
+        uint16_t target_year = digits[4] * 1000 + digits[5] * 100 + digits[6] * 10 + digits[7];
 
-        uint8_t y = digits[6] * 10 + digits[7]; 
-        
-        DS3231 set_date;
-        DS3231_GetTime(&set_date); 
-                set_date.date = d;
-        set_date.month = m;
-        set_date.year = y; 
-        
-        DS3231_SetTime(&set_date);
-
-        DS3231_GetTime(&set_date);
-        char bufd[30];
-        sprintf(bufd, "D:%02d/%02d/20%02d", set_date.date, set_date.month, set_date.year);
-        OLED_Clear();
-        OLED_Print("Date Updated!", 15, 2);
-        OLED_Print(bufd, 5, 4);
-        HAL_Delay(800);
-        OLED_Clear();
+        if(target_date >= 1 && target_date <= 31 && target_month >= 1 && target_month <= 12) {
+			DS3231 set_date;
+			DS3231_GetTime(&set_date);
+            set_date.date = target_date;
+            set_date.month = target_month;
+            set_date.year = (uint8_t)(target_year - 2000); 
+            
+            DS3231_SetTime(&set_date);
+        }
     }
+
 }
 		else if(u8_RxBuff[0]=='D')
 		{
