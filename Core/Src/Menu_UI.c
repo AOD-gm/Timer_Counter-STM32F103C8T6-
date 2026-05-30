@@ -11,13 +11,18 @@
 	uint8_t led_stage = 0;
 	uint8_t setting = 0;
 	uint8_t choose = 0;
-	DS1307 time;
+	DS3231 time;
 	char time_str[20];
 	char date_str[20];
 	uint8_t is_bg_drawn = 0;
 	uint8_t set_mode=1;
 	uint32_t timer_radar = 0;
 	uint8_t light_active = 0;
+	uint8_t alarm_active = 0; // flag when alarm is currently active (keep light on)
+	uint32_t alarm_timer_ms = 0; // timestamp when alarm was triggered
+	uint8_t manual_active = 0; // flag when light was turned on manually via web (keep until manual off)
+	uint8_t manual_override_off = 0; // when set, ignore auto-on (radar/alarm) for a period
+	uint32_t manual_off_until = 0; // timestamp until which auto-on is blocked
 	// 1. HÀM XỬ LÝ NHẬP SỐ
 	void Handle_SpcKey(char key, uint8_t *temp_val, uint8_t max_val) {
 			if (key >= '0' && key <= '9') {
@@ -66,26 +71,38 @@
 							if (choose == 1) {
 								if(setting >= 1 && setting <= 3){
 									// LƯU TIMER
-									DS1307 set_timer;
-									DS1307_GetTime(&set_timer);
+									DS3231 set_timer;
+									DS3231_GetTime(&set_timer);
 									set_timer.hours = temp_hour;
 									set_timer.minutes = temp_minute;
 									set_timer.seconds = temp_second;
-									DS1307_SetTime(&set_timer); 
-									OLED_Clear();
-									OLED_Print("Timer Updated!", 15, 3);
+									DS3231_SetTime(&set_timer); 
+									DS3231_GetTime(&set_timer);
+									{
+										char buf[30];
+										sprintf(buf, "Now:%02d:%02d:%02d Y:20%02d", set_timer.hours, set_timer.minutes, set_timer.seconds, set_timer.year);
+										OLED_Clear();
+										OLED_Print("Timer Updated!", 15, 2);
+										OLED_Print(buf, 5, 4);
+										HAL_Delay(800);
+									}
 								}
 								else if(setting>=5 && setting <=8){
-									DS1307 set_date;
-									DS1307_GetTime(&set_date);
+									DS3231 set_date;
+									DS3231_GetTime(&set_date);
 									set_date.day = temp_day;
 									set_date.date = temp_date;
 									set_date.month = temp_month;
-									set_date.year = temp_year;
-									DS1307_SetTime(&set_date); 
-									
-									OLED_Clear();
-									OLED_Print("Ngay Updated!", 15, 3);
+									set_date.year = 26;
+									DS3231_SetTime(&set_date);
+									{
+										char bufd[30];
+										sprintf(bufd, "D:%02d/%02d/20%02d", set_date.date, set_date.month, set_date.year);
+										OLED_Clear();
+										OLED_Print("Ngay Updated!", 15, 2);
+										OLED_Print(bufd, 5, 4);
+										HAL_Delay(800);
+									}
 								}
 							HAL_Delay(1000);
 							menu = 2; setting = 4; locate = 0; mode = 0; // Trở về setting
@@ -93,11 +110,11 @@
 							}
 							else if (choose == 2) {
 									// LƯU ALARM
-									DS1307 set_alarm;
+									DS3231 set_alarm;
 									set_alarm.hours = temp_hour;
 									set_alarm.minutes = temp_minute;
 									set_alarm.seconds = temp_second;
-									DS1307_SetAlarm(&set_alarm); 
+									DS3231_SetAlarm(&set_alarm); 
 
 									OLED_Clear();
 									OLED_Print("Alarm Saved!", 20, 3);
@@ -166,8 +183,18 @@
 
 			// --- MÀN HÌNH CHỜ ---
 			if (menu == 0) {
-					if (key == 'A') { mode = 0; menu = 1; OLED_Clear(); } // Vào Menu
-					else if (key == 'B') { menu = 2; setting = 0; OLED_Clear(); } // Shortcut vào Setting
+				// Nếu nhấn D khi ở màn chờ -> tắt đèn (dùng remote ON/OFF)
+				if (key == 'D') {
+					light_active = 0;
+					alarm_active = 0;
+					manual_active = 0;
+					manual_override_off = 1;
+					manual_off_until = HAL_GetTick() + 30000; // block auto-on 30s
+					OLED_Clear();
+					return;
+				}
+				if (key == 'A') { mode = 0; menu = 1; OLED_Clear(); } // Vào Menu
+				else if (key == 'B') { menu = 2; setting = 0; OLED_Clear(); } // Shortcut vào Setting
 					return;
 			}
 
@@ -184,8 +211,8 @@
 					if (setting == 0) { // Đang ở Menu chọn loại Setting
 							if (key == '4') { choose = 1; setting = 4; locate = 0; temp_hour = 0; temp_minute = 0; temp_second = 0; OLED_Clear(); }
 							else if (key == '6') {
-								DS1307 get_alarm;
-								DS1307_GetAlarm(&get_alarm);
+								DS3231 get_alarm;
+								DS3231_GetAlarm(&get_alarm);
 								temp_hour = get_alarm.hours;
 								temp_minute = get_alarm.minutes;
 								temp_second = get_alarm.seconds;
@@ -195,6 +222,18 @@
 					else if (setting == 4) { // Đang ở bảng Hướng dẫn, chờ chọn B C D
 						
 							 if(key=='1') { setting = 5; locate = 0; OLED_Clear(); }
+										 if(key=='1') {
+											DS3231 current;
+											DS3231_GetTime(&current);
+											temp_day = current.day;
+											temp_date = current.date;
+											temp_month = current.month;
+											// Force displayed/editable year to 2026
+											temp_year = 26;
+											setting = 5;
+											locate = 0;
+											OLED_Clear();
+										 }
 							 else if(key=='2'){setting = 1; locate =0; OLED_Clear();}
 							 else if(key=='#'){setting =0, locate=0; OLED_Clear();}
 					} 
@@ -299,10 +338,10 @@
 							else if(set_mode == 1) OLED_Print("Normal      ", 40, 5);
 							else if(set_mode == 2) OLED_Print("Power Saving", 40, 5);
 					if (alarm_set == 1) {
-						DS1307 alarm_info;
-						DS1307_GetAlarm(&alarm_info);
-						DS1307 time_now;
-						DS1307_GetTime(&time_now);
+						DS3231 alarm_info;
+						DS3231_GetAlarm(&alarm_info);
+						DS3231 time_now;
+						DS3231_GetTime(&time_now);
 						char alarm_str[30], time_str2[20];
 						sprintf(alarm_str, "Alm:%02d:%02d:%02d", alarm_info.hours, alarm_info.minutes, alarm_info.seconds);
 						sprintf(time_str2, "Now:%02d:%02d:%02d", time_now.hours, time_now.minutes, time_now.seconds);
@@ -313,7 +352,7 @@
 							break;
 							
 					case 1: // MÀN HÌNH MENU CHÍNH
-							OLED_Print("MENU", 45, 0);
+
 							OLED_DrawSelectionBracket(40, 0, 50);
 							OLED_Print("Mode", 45, 2);
 							OLED_Print("Setting", 45, 4);
@@ -438,40 +477,67 @@
 	}
 
 void UI_System_Process(void) {
-    DS1307_GetTime(&time); // Luôn cập nhật thời gian thực
+    DS3231_GetTime(&time); // Luôn cập nhật thời gian thực
 
     // 1. KIỂM TRA BÁO THỨC (ALARM)
     if (alarm_set == 1) {
-        DS1307 alarm_info;
-        DS1307_GetAlarm(&alarm_info);
+        DS3231 alarm_info;
+        DS3231_GetAlarm(&alarm_info);
         
         if (alarm_info.hours == time.hours && 
             alarm_info.minutes == time.minutes && 
-            time.seconds < 2) 
+			alarm_info.seconds == time.seconds) 
         {
-            light_active = 1;
-            timer_radar = HAL_GetTick(); 
-            alarm_set = 0; 
+			// Toggle light state at the scheduled time.
+			if (light_active == 1) {
+				light_active = 0;
+				alarm_active = 0;
+				manual_active = 0;
+				manual_override_off = 0;
+				manual_off_until = 0;
+			} else {
+				light_active = 1;
+				alarm_active = 1;
+				manual_active = 0;
+				manual_override_off = 0;
+				manual_off_until = 0;
+				timer_radar = HAL_GetTick();
+			}
+			alarm_set = 0; // clear saved alarm so it won't retrigger
         }
     }
 
     // 2. KIỂM TRA RADAR (SMART LIGHT)
-    if (Radar.state != 0 && set_mode != 2) {
-        light_active = 1;
-        timer_radar = HAL_GetTick(); 
-    } 
+	// if manual override off is active, check expiration
+	if (manual_override_off) {
+		if (HAL_GetTick() >= manual_off_until) {
+			manual_override_off = 0; // allow auto-on again
+		}
+	}
+
+	if (!manual_override_off) {
+		if (Radar.state != 0 && set_mode != 2) {
+			light_active = 1;
+			timer_radar = HAL_GetTick(); 
+		}
+	}
 
     // 3. ĐIỀU KHIỂN CHÂN ĐÈN (LED_PIN)
     if (light_active == 1) {
         HAL_GPIO_WritePin(LED_PORT, LED_PIN, GPIO_PIN_SET);   
         HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET); // Onboard LED ON (Active Low)
 
-        // Tự động tắt sau 5 giây nếu không còn phát hiện người
-        if (Radar.state == 0) {
-            if (HAL_GetTick() - timer_radar >= 5000) {
-                light_active = 0;
-            }
-        }
+		// Nếu bật bằng web (manual) hoặc alarm, giữ tới khi có lệnh tắt khác
+		if (manual_active || alarm_active) {
+			// nothing: keep light_active == 1 until turned off explicitly
+		} else {
+			// Tự động tắt sau 5 giây nếu không còn phát hiện người (radar)
+			if (Radar.state == 0) {
+				if (HAL_GetTick() - timer_radar >= 5000) {
+					light_active = 0;
+				}
+			}
+		}
     } 
     else {
         HAL_GPIO_WritePin(LED_PORT, LED_PIN, GPIO_PIN_RESET); 
@@ -503,16 +569,23 @@ void UI_ESP_Process(void) {
 				uint8_t h = digits[0] * 10 + digits[1];
 				uint8_t m = digits[2] * 10 + digits[3];
 				uint8_t s = digits[4] * 10 + digits[5];
-				DS1307 set_timer;
-				DS1307_GetTime(&set_timer);
+				DS3231 set_timer;
+				DS3231_GetTime(&set_timer);
 				set_timer.hours = h;
 				set_timer.minutes = m;
 				set_timer.seconds = s;
-				DS1307_SetTime(&set_timer);
-				OLED_Clear();
-				OLED_Print("Timer Updated!", 15, 3);
-			HAL_Delay(500);
-			OLED_Clear();
+				DS3231_SetTime(&set_timer);
+				// Read back and display stored time to verify RTC write
+				DS3231_GetTime(&set_timer);
+				{
+					char buf[30];
+					sprintf(buf, "Now:%02d:%02d:%02d Y:20%02d", set_timer.hours, set_timer.minutes, set_timer.seconds, set_timer.year);
+					OLED_Clear();
+					OLED_Print("Timer Updated!", 15, 2);
+					OLED_Print(buf, 5, 4);
+					HAL_Delay(800);
+					OLED_Clear();
+				}
 			}
 		}
 		else if(u8_RxBuff[0]=='A')
@@ -529,15 +602,15 @@ void UI_ESP_Process(void) {
 				uint8_t h = digits[0] * 10 + digits[1];
 				uint8_t m = digits[2] * 10 + digits[3];
 				uint8_t s = digits[4] * 10 + digits[5];
-				DS1307 set_alarm;
-				DS1307_GetAlarm(&set_alarm);
+				DS3231 set_alarm;
+				DS3231_GetAlarm(&set_alarm);
 				set_alarm.hours = h;
 				set_alarm.minutes = m;
 				set_alarm.seconds = s;
-				DS1307_SetAlarm(&set_alarm);
+				DS3231_SetAlarm(&set_alarm);
 				HAL_Delay(100);
 
-				DS1307_GetAlarm(&set_alarm);
+				DS3231_GetAlarm(&set_alarm);
 				temp_hour = set_alarm.hours;
 				temp_minute = set_alarm.minutes;
 				temp_second = set_alarm.seconds;
@@ -548,12 +621,27 @@ void UI_ESP_Process(void) {
 		}
 		else if(u8_RxBuff[0]=='D')
 		{
-			if(u8_RxBuff[2]=='1') {
+			// Tìm ký tự '1' hoặc '0' trong buffer (hỗ trợ "D1", "D:1", "D=1", ...)
+			int found = -1;
+			for (int i = 1; i < sizeof(u8_RxBuff); i++) {
+				char c = u8_RxBuff[i];
+				if (c == '1') { found = 1; break; }
+				if (c == '0') { found = 0; break; }
+				if (c == '\0') break;
+			}
+			if (found == 1) {
 				light_active = 1;
 				timer_radar = HAL_GetTick(); // Bật thủ công và reset timer
-			}
-			else {
+				alarm_active = 0; // manual on should not be treated as alarm
+				manual_active = 1; // mark manual on so auto-off won't apply
+				manual_override_off = 0; // cancel any previous manual-off block
+			} else if (found == 0) {
 				light_active = 0; // Tắt thủ công
+				alarm_active = 0; // nếu đang ở chế độ báo thức, hủy nó khi tắt thủ công
+				manual_active = 0; // clear manual flag
+				
+				manual_override_off = 1;
+				manual_off_until = HAL_GetTick() + 30000; 
 			}
 		}
 

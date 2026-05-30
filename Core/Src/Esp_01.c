@@ -17,6 +17,7 @@ void ESP01_UART_Callback(UART_HandleTypeDef *huart) {
             if(RxIndex >= 50) RxIndex = 0; 
         } 
         else { 
+            u8_RxBuff[RxIndex] = '\0'; // null-terminate received string
             Rx_Flag = 1; 
         }
         HAL_UART_Receive_IT(&huart1, &rx_byte, 1); 

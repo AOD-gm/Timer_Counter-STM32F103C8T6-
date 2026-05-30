@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "DS1307.h"
+#include "DS3231.h"
 #include "Keypad.h"
 #include "SSD1306.h"
 #include "FontSSD1306.h"
@@ -74,7 +74,6 @@ static void MX_USART1_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-
 /* USER CODE END 0 */
 
 /**
@@ -111,13 +110,12 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-	DS1307_Init();
-	OLED_Init();
-	OLED_Clear();
+  OLED_Init();
+  OLED_Clear();
+  DS3231_Init();
 	IR_Init(&htim2);
 	HLK_LD2410_Init(&huart2);
   HAL_UART_Receive_IT(&huart1, &rx_byte, 1);
-//  DS1307_SetTime(&time);
 
   /* USER CODE END 2 */
 

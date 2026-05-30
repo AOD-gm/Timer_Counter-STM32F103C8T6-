@@ -1,6 +1,5 @@
 --cpu Cortex-M3
 "timer_counter\startup_stm32f103xb.o"
-"timer_counter\ds1307.o"
 "timer_counter\keypad.o"
 "timer_counter\ssd1306.o"
 "timer_counter\fontssd1306.o"
@@ -11,6 +10,7 @@
 "timer_counter\main.o"
 "timer_counter\stm32f1xx_it.o"
 "timer_counter\stm32f1xx_hal_msp.o"
+"timer_counter\ds3231.o"
 "timer_counter\stm32f1xx_hal_gpio_ex.o"
 "timer_counter\stm32f1xx_hal_i2c.o"
 "timer_counter\stm32f1xx_hal.o"

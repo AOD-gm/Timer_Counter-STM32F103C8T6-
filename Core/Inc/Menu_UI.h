@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "SSD1306.h"
 #include "MH-R38.h"
-#include "DS1307.h"
+#include "DS3231.h"
 #include "HLK_LD2410.h"
 #include <stdio.h> 
 #include <string.h>

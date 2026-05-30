@@ -226,16 +226,3 @@ void handleDevice() {
   }
 }
 
-void ESP01_UART_Callback(UART_HandleTypeDef *huart) {
-  if(huart->Instance == huart1.Instance) {
-        if(rx_byte != '\n') { 
-            u8_RxBuff[_RxIndex] = rx_byte; 
-            _RxIndex++;
-            if(_RxIndex >= 50) _RxIndex = 0; 
-        } 
-        else { 
-            Rx_Flag = 1; 
-        }
-        HAL_UART_Receive_IT(&huart1, &rx_byte, 1); 
-    }
-}

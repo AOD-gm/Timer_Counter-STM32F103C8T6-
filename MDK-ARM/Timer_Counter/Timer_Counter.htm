@@ -3,9 +3,9 @@
 <title>Static Call Graph - [Timer_Counter\Timer_Counter.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image Timer_Counter\Timer_Counter.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6240002: Last Updated: Wed May 20 05:51:58 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6240002: Last Updated: Sat May 30 14:13:32 2026
 <BR><P>
-<H3>Maximum Stack Usage =        616 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =        608 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
 __rt_entry_main &rArr; main &rArr; UI_Render &rArr; OLED_Print &rArr; OLED_Write &rArr; OLED_Cusor &rArr; Oled_SendCmd &rArr; HAL_I2C_Mem_Write &rArr; I2C_RequestMemoryWrite &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
 <P>
@@ -368,7 +368,7 @@ Global Symbols
 <P><STRONG><a name="[13c]"></a>__rt_entry_postsh_1</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __rtentry2.o(.ARM.Collect$$rtentry$$00000009))
 
 <P><STRONG><a name="[6a]"></a>__rt_entry_main</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __rtentry2.o(.ARM.Collect$$rtentry$$0000000D))
-<BR><BR>[Stack]<UL><LI>Max Depth = 616 + Unknown Stack Size
+<BR><BR>[Stack]<UL><LI>Max Depth = 608 + Unknown Stack Size
 <LI>Call Chain = __rt_entry_main &rArr; main &rArr; UI_Render &rArr; OLED_Print &rArr; OLED_Write &rArr; OLED_Cusor &rArr; Oled_SendCmd &rArr; HAL_I2C_Mem_Write &rArr; I2C_RequestMemoryWrite &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
@@ -529,7 +529,9 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[37]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_sputc
 <LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_printf_char_common
 </UL>
-<BR>[Called By]<UL><LI><a href="#[10d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UI_Render
+<BR>[Called By]<UL><LI><a href="#[108]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UI_ESP_Process
+<LI><a href="#[10d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UI_Render
+<LI><a href="#[ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Key_Save_Return
 </UL>
 
 <P><STRONG><a name="[109]"></a>__aeabi_memclr</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, rt_memclr.o(.text))
@@ -902,8 +904,8 @@ Global Symbols
 <P><STRONG><a name="[4]"></a>BusFault_Handler</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, stm32f1xx_it.o(.text.BusFault_Handler))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f103xb.o(RESET)
 </UL>
-<P><STRONG><a name="[93]"></a>DS1307_GetAlarm</STRONG> (Thumb, 90 bytes, Stack size 32 bytes, ds1307.o(.text.DS1307_GetAlarm))
-<BR><BR>[Stack]<UL><LI>Max Depth = 176<LI>Call Chain = DS1307_GetAlarm &rArr; HAL_I2C_Mem_Read &rArr; I2C_RequestMemoryRead &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
+<P><STRONG><a name="[93]"></a>DS3231_GetAlarm</STRONG> (Thumb, 90 bytes, Stack size 32 bytes, ds3231.o(.text.DS3231_GetAlarm))
+<BR><BR>[Stack]<UL><LI>Max Depth = 176<LI>Call Chain = DS3231_GetAlarm &rArr; HAL_I2C_Mem_Read &rArr; I2C_RequestMemoryRead &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_Mem_Read
 <LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BcdToDec
@@ -914,8 +916,8 @@ Global Symbols
 <LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UI_Proccess_Keypad
 </UL>
 
-<P><STRONG><a name="[96]"></a>DS1307_GetTime</STRONG> (Thumb, 136 bytes, Stack size 32 bytes, ds1307.o(.text.DS1307_GetTime))
-<BR><BR>[Stack]<UL><LI>Max Depth = 176<LI>Call Chain = DS1307_GetTime &rArr; HAL_I2C_Mem_Read &rArr; I2C_RequestMemoryRead &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
+<P><STRONG><a name="[96]"></a>DS3231_GetTime</STRONG> (Thumb, 136 bytes, Stack size 32 bytes, ds3231.o(.text.DS3231_GetTime))
+<BR><BR>[Stack]<UL><LI>Max Depth = 176<LI>Call Chain = DS3231_GetTime &rArr; HAL_I2C_Mem_Read &rArr; I2C_RequestMemoryRead &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_Mem_Read
 <LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BcdToDec
@@ -923,28 +925,29 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[108]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UI_ESP_Process
 <LI><a href="#[10e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UI_System_Process
 <LI><a href="#[10d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UI_Render
+<LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UI_Proccess_Keypad
 <LI><a href="#[ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Key_Save_Return
 </UL>
 
-<P><STRONG><a name="[10f]"></a>DS1307_Init</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, ds1307.o(.text.DS1307_Init))
+<P><STRONG><a name="[10f]"></a>DS3231_Init</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, ds3231.o(.text.DS3231_Init))
 <BR><BR>[Called By]<UL><LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[97]"></a>DS1307_SetAlarm</STRONG> (Thumb, 88 bytes, Stack size 32 bytes, ds1307.o(.text.DS1307_SetAlarm))
-<BR><BR>[Stack]<UL><LI>Max Depth = 144<LI>Call Chain = DS1307_SetAlarm &rArr; HAL_I2C_Mem_Write &rArr; I2C_RequestMemoryWrite &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
+<P><STRONG><a name="[97]"></a>DS3231_SetAlarm</STRONG> (Thumb, 88 bytes, Stack size 32 bytes, ds3231.o(.text.DS3231_SetAlarm))
+<BR><BR>[Stack]<UL><LI>Max Depth = 144<LI>Call Chain = DS3231_SetAlarm &rArr; HAL_I2C_Mem_Write &rArr; I2C_RequestMemoryWrite &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
 </UL>
-<BR>[Calls]<UL><LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_Mem_Write
-<LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DecToBcd
+<BR>[Calls]<UL><LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DecToBcd
+<LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_Mem_Write
 </UL>
 <BR>[Called By]<UL><LI><a href="#[108]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UI_ESP_Process
 <LI><a href="#[ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Key_Save_Return
 </UL>
 
-<P><STRONG><a name="[9a]"></a>DS1307_SetTime</STRONG> (Thumb, 132 bytes, Stack size 32 bytes, ds1307.o(.text.DS1307_SetTime))
-<BR><BR>[Stack]<UL><LI>Max Depth = 144<LI>Call Chain = DS1307_SetTime &rArr; HAL_I2C_Mem_Write &rArr; I2C_RequestMemoryWrite &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
+<P><STRONG><a name="[9a]"></a>DS3231_SetTime</STRONG> (Thumb, 146 bytes, Stack size 32 bytes, ds3231.o(.text.DS3231_SetTime))
+<BR><BR>[Stack]<UL><LI>Max Depth = 144<LI>Call Chain = DS3231_SetTime &rArr; HAL_I2C_Mem_Write &rArr; I2C_RequestMemoryWrite &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
 </UL>
-<BR>[Calls]<UL><LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_Mem_Write
-<LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DecToBcd
+<BR>[Calls]<UL><LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DecToBcd
+<LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_Mem_Write
 </UL>
 <BR>[Called By]<UL><LI><a href="#[108]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UI_ESP_Process
 <LI><a href="#[ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Key_Save_Return
@@ -953,7 +956,7 @@ Global Symbols
 <P><STRONG><a name="[7]"></a>DebugMon_Handler</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, stm32f1xx_it.o(.text.DebugMon_Handler))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f103xb.o(RESET)
 </UL>
-<P><STRONG><a name="[9b]"></a>ESP01_UART_Callback</STRONG> (Thumb, 176 bytes, Stack size 16 bytes, esp_01.o(.text.ESP01_UART_Callback))
+<P><STRONG><a name="[9b]"></a>ESP01_UART_Callback</STRONG> (Thumb, 198 bytes, Stack size 16 bytes, esp_01.o(.text.ESP01_UART_Callback))
 <BR><BR>[Stack]<UL><LI>Max Depth = 52<LI>Call Chain = ESP01_UART_Callback &rArr; HAL_UART_Receive_IT &rArr; UART_Start_Receive_IT
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_TogglePin
@@ -1036,14 +1039,15 @@ Global Symbols
 <LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnBTFFlagUntilTimeout
 <LI><a href="#[a7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnTXEFlagUntilTimeout
 <LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnFlagUntilTimeout
+<LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_Mem_Read
 <LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_ClockConfig
 <LI><a href="#[ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_OscConfig
 <LI><a href="#[e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Transmit
 <LI><a href="#[108]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UI_ESP_Process
 <LI><a href="#[10e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UI_System_Process
-<LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
-<LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_Mem_Read
+<LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UI_Proccess_Keypad
 <LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_Mem_Write
+<LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
 <LI><a href="#[e7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_WaitOnFlagUntilTimeout
 </UL>
 
@@ -1064,8 +1068,8 @@ Global Symbols
 <LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnFlagUntilTimeout
 <LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
 </UL>
-<BR>[Called By]<UL><LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_GetAlarm
-<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_GetTime
+<BR>[Called By]<UL><LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_GetAlarm
+<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_GetTime
 </UL>
 
 <P><STRONG><a name="[99]"></a>HAL_I2C_Mem_Write</STRONG> (Thumb, 532 bytes, Stack size 40 bytes, stm32f1xx_hal_i2c.o(.text.HAL_I2C_Mem_Write))
@@ -1077,10 +1081,10 @@ Global Symbols
 <LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;I2C_WaitOnFlagUntilTimeout
 <LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
 </UL>
-<BR>[Called By]<UL><LI><a href="#[fd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Oled_SendData
+<BR>[Called By]<UL><LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_SetAlarm
+<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_SetTime
+<LI><a href="#[fd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Oled_SendData
 <LI><a href="#[fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Oled_SendCmd
-<LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_SetAlarm
-<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_SetTime
 </UL>
 
 <P><STRONG><a name="[a1]"></a>HAL_I2C_MspInit</STRONG> (Thumb, 126 bytes, Stack size 40 bytes, stm32f1xx_hal_msp.o(.text.HAL_I2C_MspInit))
@@ -1471,19 +1475,21 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[ee]"></a>Key_Save_Return</STRONG> (Thumb, 1162 bytes, Stack size 48 bytes, menu_ui.o(.text.Key_Save_Return))
-<BR><BR>[Stack]<UL><LI>Max Depth = 256<LI>Call Chain = Key_Save_Return &rArr; OLED_Print &rArr; OLED_Write &rArr; OLED_Cusor &rArr; Oled_SendCmd &rArr; HAL_I2C_Mem_Write &rArr; I2C_RequestMemoryWrite &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
+<P><STRONG><a name="[ee]"></a>Key_Save_Return</STRONG> (Thumb, 1270 bytes, Stack size 120 bytes, menu_ui.o(.text.Key_Save_Return))
+<BR><BR>[Stack]<UL><LI>Max Depth = 328 + Unknown Stack Size
+<LI>Call Chain = Key_Save_Return &rArr; OLED_Print &rArr; OLED_Write &rArr; OLED_Cusor &rArr; Oled_SendCmd &rArr; HAL_I2C_Mem_Write &rArr; I2C_RequestMemoryWrite &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HLK_LD2410_Disable
 <LI><a href="#[f1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LD2410_Set_Threshold
 <LI><a href="#[e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HLK_LD2410_Enable
+<LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_SetAlarm
+<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_SetTime
+<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_GetTime
 <LI><a href="#[ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;OLED_Clear
 <LI><a href="#[f0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;OLED_Print
 <LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
 <LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_WritePin
-<LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_SetAlarm
-<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_GetTime
-<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_SetTime
+<LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sprintf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UI_Proccess_Keypad
 </UL>
@@ -1697,66 +1703,71 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Receive_IT
 </UL>
 
-<P><STRONG><a name="[108]"></a>UI_ESP_Process</STRONG> (Thumb, 738 bytes, Stack size 80 bytes, menu_ui.o(.text.UI_ESP_Process))
-<BR><BR>[Stack]<UL><LI>Max Depth = 288 + Unknown Stack Size
+<P><STRONG><a name="[108]"></a>UI_ESP_Process</STRONG> (Thumb, 974 bytes, Stack size 136 bytes, menu_ui.o(.text.UI_ESP_Process))
+<BR><BR>[Stack]<UL><LI>Max Depth = 344 + Unknown Stack Size
 <LI>Call Chain = UI_ESP_Process &rArr; OLED_Print &rArr; OLED_Write &rArr; OLED_Cusor &rArr; Oled_SendCmd &rArr; HAL_I2C_Mem_Write &rArr; I2C_RequestMemoryWrite &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
 </UL>
-<BR>[Calls]<UL><LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
+<BR>[Calls]<UL><LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_GetAlarm
+<LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
+<LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_SetAlarm
+<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_SetTime
+<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_GetTime
 <LI><a href="#[ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;OLED_Clear
 <LI><a href="#[f0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;OLED_Print
 <LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
-<LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_GetAlarm
-<LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_SetAlarm
-<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_GetTime
-<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_SetTime
 <LI><a href="#[109]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr
+<LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sprintf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
 <P><STRONG><a name="[10a]"></a>UI_Proccess_IR</STRONG> (Thumb, 518 bytes, Stack size 16 bytes, menu_ui.o(.text.UI_Proccess_IR))
-<BR><BR>[Stack]<UL><LI>Max Depth = 296<LI>Call Chain = UI_Proccess_IR &rArr; UI_Proccess_Keypad &rArr; Key_Save_Return &rArr; OLED_Print &rArr; OLED_Write &rArr; OLED_Cusor &rArr; Oled_SendCmd &rArr; HAL_I2C_Mem_Write &rArr; I2C_RequestMemoryWrite &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
+<BR><BR>[Stack]<UL><LI>Max Depth = 368 + Unknown Stack Size
+<LI>Call Chain = UI_Proccess_IR &rArr; UI_Proccess_Keypad &rArr; Key_Save_Return &rArr; OLED_Print &rArr; OLED_Write &rArr; OLED_Cusor &rArr; Oled_SendCmd &rArr; HAL_I2C_Mem_Write &rArr; I2C_RequestMemoryWrite &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UI_Proccess_Keypad
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[10b]"></a>UI_Proccess_Keypad</STRONG> (Thumb, 1484 bytes, Stack size 24 bytes, menu_ui.o(.text.UI_Proccess_Keypad))
-<BR><BR>[Stack]<UL><LI>Max Depth = 280<LI>Call Chain = UI_Proccess_Keypad &rArr; Key_Save_Return &rArr; OLED_Print &rArr; OLED_Write &rArr; OLED_Cusor &rArr; Oled_SendCmd &rArr; HAL_I2C_Mem_Write &rArr; I2C_RequestMemoryWrite &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
+<P><STRONG><a name="[10b]"></a>UI_Proccess_Keypad</STRONG> (Thumb, 1666 bytes, Stack size 24 bytes, menu_ui.o(.text.UI_Proccess_Keypad))
+<BR><BR>[Stack]<UL><LI>Max Depth = 352 + Unknown Stack Size
+<LI>Call Chain = UI_Proccess_Keypad &rArr; Key_Save_Return &rArr; OLED_Print &rArr; OLED_Write &rArr; OLED_Cusor &rArr; Oled_SendCmd &rArr; HAL_I2C_Mem_Write &rArr; I2C_RequestMemoryWrite &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
 </UL>
-<BR>[Calls]<UL><LI><a href="#[ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Key_Save_Return
+<BR>[Calls]<UL><LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_GetAlarm
+<LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
+<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_GetTime
+<LI><a href="#[ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Key_Save_Return
 <LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Handle_SpcKey
 <LI><a href="#[ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;OLED_Clear
-<LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_GetAlarm
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 <LI><a href="#[10a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UI_Proccess_IR
 </UL>
 
-<P><STRONG><a name="[10d]"></a>UI_Render</STRONG> (Thumb, 2232 bytes, Stack size 384 bytes, menu_ui.o(.text.UI_Render))
-<BR><BR>[Stack]<UL><LI>Max Depth = 592 + Unknown Stack Size
+<P><STRONG><a name="[10d]"></a>UI_Render</STRONG> (Thumb, 2184 bytes, Stack size 376 bytes, menu_ui.o(.text.UI_Render))
+<BR><BR>[Stack]<UL><LI>Max Depth = 584 + Unknown Stack Size
 <LI>Call Chain = UI_Render &rArr; OLED_Print &rArr; OLED_Write &rArr; OLED_Cusor &rArr; Oled_SendCmd &rArr; HAL_I2C_Mem_Write &rArr; I2C_RequestMemoryWrite &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
 </UL>
-<BR>[Calls]<UL><LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;OLED_DrawSelectionBracket
+<BR>[Calls]<UL><LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_GetAlarm
+<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_GetTime
+<LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;OLED_DrawSelectionBracket
 <LI><a href="#[100]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;OLED_DrawSelectionBox
 <LI><a href="#[ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;OLED_Clear
 <LI><a href="#[f0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;OLED_Print
 <LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
-<LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_GetAlarm
-<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_GetTime
 <LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sprintf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[10e]"></a>UI_System_Process</STRONG> (Thumb, 400 bytes, Stack size 24 bytes, menu_ui.o(.text.UI_System_Process))
-<BR><BR>[Stack]<UL><LI>Max Depth = 200<LI>Call Chain = UI_System_Process &rArr; DS1307_GetAlarm &rArr; HAL_I2C_Mem_Read &rArr; I2C_RequestMemoryRead &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
+<P><STRONG><a name="[10e]"></a>UI_System_Process</STRONG> (Thumb, 618 bytes, Stack size 24 bytes, menu_ui.o(.text.UI_System_Process))
+<BR><BR>[Stack]<UL><LI>Max Depth = 200<LI>Call Chain = UI_System_Process &rArr; DS3231_GetAlarm &rArr; HAL_I2C_Mem_Read &rArr; I2C_RequestMemoryRead &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
 </UL>
-<BR>[Calls]<UL><LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
+<BR>[Calls]<UL><LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_GetAlarm
+<LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
+<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_GetTime
 <LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_WritePin
-<LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_GetAlarm
-<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_GetTime
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -1779,10 +1790,11 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f103xb.o(RESET)
 </UL>
 <P><STRONG><a name="[6b]"></a>main</STRONG> (Thumb, 144 bytes, Stack size 24 bytes, main.o(.text.main))
-<BR><BR>[Stack]<UL><LI>Max Depth = 616 + Unknown Stack Size
+<BR><BR>[Stack]<UL><LI>Max Depth = 608 + Unknown Stack Size
 <LI>Call Chain = main &rArr; UI_Render &rArr; OLED_Print &rArr; OLED_Write &rArr; OLED_Cusor &rArr; Oled_SendCmd &rArr; HAL_I2C_Mem_Write &rArr; I2C_RequestMemoryWrite &rArr; I2C_WaitOnMasterAddressFlagUntilTimeout
 </UL>
-<BR>[Calls]<UL><LI><a href="#[105]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemClock_Config
+<BR>[Calls]<UL><LI><a href="#[10f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_Init
+<LI><a href="#[105]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemClock_Config
 <LI><a href="#[aa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Init
 <LI><a href="#[fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_USART1_UART_Init
 <LI><a href="#[fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_USART2_UART_Init
@@ -1802,7 +1814,6 @@ Global Symbols
 <LI><a href="#[102]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;OLED_Init
 <LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
 <LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Keypad_Read
-<LI><a href="#[10f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_Init
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__rt_entry_main
 </UL>
@@ -1909,20 +1920,6 @@ Global Symbols
 <H3>
 Local Symbols
 </H3>
-<P><STRONG><a name="[98]"></a>DecToBcd</STRONG> (Thumb, 40 bytes, Stack size 4 bytes, ds1307.o(.text.DecToBcd))
-<BR><BR>[Stack]<UL><LI>Max Depth = 4<LI>Call Chain = DecToBcd
-</UL>
-<BR>[Called By]<UL><LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_SetAlarm
-<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_SetTime
-</UL>
-
-<P><STRONG><a name="[95]"></a>BcdToDec</STRONG> (Thumb, 30 bytes, Stack size 4 bytes, ds1307.o(.text.BcdToDec))
-<BR><BR>[Stack]<UL><LI>Max Depth = 4<LI>Call Chain = BcdToDec
-</UL>
-<BR>[Called By]<UL><LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_GetAlarm
-<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS1307_GetTime
-</UL>
-
 <P><STRONG><a name="[f5]"></a>MX_GPIO_Init</STRONG> (Thumb, 394 bytes, Stack size 72 bytes, main.o(.text.MX_GPIO_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 136<LI>Call Chain = MX_GPIO_Init &rArr; HAL_GPIO_Init
 </UL>
@@ -1970,6 +1967,20 @@ Local Symbols
 <LI><a href="#[f7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Error_Handler
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
+</UL>
+
+<P><STRONG><a name="[98]"></a>DecToBcd</STRONG> (Thumb, 40 bytes, Stack size 4 bytes, ds3231.o(.text.DecToBcd))
+<BR><BR>[Stack]<UL><LI>Max Depth = 4<LI>Call Chain = DecToBcd
+</UL>
+<BR>[Called By]<UL><LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_SetAlarm
+<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_SetTime
+</UL>
+
+<P><STRONG><a name="[95]"></a>BcdToDec</STRONG> (Thumb, 30 bytes, Stack size 4 bytes, ds3231.o(.text.BcdToDec))
+<BR><BR>[Stack]<UL><LI>Max Depth = 4<LI>Call Chain = BcdToDec
+</UL>
+<BR>[Called By]<UL><LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_GetAlarm
+<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DS3231_GetTime
 </UL>
 
 <P><STRONG><a name="[a3]"></a>I2C_WaitOnFlagUntilTimeout</STRONG> (Thumb, 264 bytes, Stack size 40 bytes, stm32f1xx_hal_i2c.o(.text.I2C_WaitOnFlagUntilTimeout))

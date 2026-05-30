@@ -395,11 +395,6 @@
           <GroupName>Application/User/Core</GroupName>
           <Files>
             <File>
-              <FileName>DS1307.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\DS1307.c</FilePath>
-            </File>
-            <File>
               <FileName>Keypad.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Core\Src\Keypad.c</FilePath>
@@ -448,6 +443,11 @@
               <FileName>stm32f1xx_hal_msp.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32f1xx_hal_msp.c</FilePath>
+            </File>
+            <File>
+              <FileName>DS3231.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\DS3231.c</FilePath>
             </File>
           </Files>
         </Group>
