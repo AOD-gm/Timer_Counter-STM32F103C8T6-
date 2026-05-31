@@ -1,4 +1,4 @@
-# ĐỒ ÁN VI XỬ LÝ - VI ĐIỀU KHIỂN (TIMER COUNTER)
+# TIMER COUNTER
 <p align="left">
   <img src="https://img.shields.io/badge/Main%20MCU-STM32F103C8T6-blue?style=flat&logo=stmicroelectronics" />
   <img src="https://img.shields.io/badge/Wireless-ESP8286--01-red?style=flat&logo=espressif" />
