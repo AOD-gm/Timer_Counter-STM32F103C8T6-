@@ -36,3 +36,4 @@ MDK-ARM/*.uvguix.*
 MDK-ARM/*.uvoptx
 .venv/
 .env
+.azure/
